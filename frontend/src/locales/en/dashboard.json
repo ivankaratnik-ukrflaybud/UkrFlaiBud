@@ -1,0 +1,26 @@
+{
+  "title": "UKRFLYBUD Manager",
+  "subtitle": "The ERP platform foundation is ready for future iterations: clean architecture, Docker environment, localization, and core infrastructure services.",
+  "api": {
+    "title": "Backend API",
+    "description": "The FastAPI service is prepared for API, service, repository, database, and domain model layers."
+  },
+  "database": {
+    "title": "PostgreSQL 16",
+    "description": "The database starts through Docker Compose together with pgAdmin and Nginx."
+  },
+  "modules": {
+    "title": "Prepared ERP areas",
+    "items": {
+      "projects": "Projects",
+      "procurement": "Procurement",
+      "inventory": "Inventory",
+      "warehouse": "Warehouses",
+      "accounting": "Accounting",
+      "crm": "CRM",
+      "hr": "HR"
+    }
+  },
+  "localeSummary": "Locale: {{locale}}. Timezone: {{timezone}}."
+}
+

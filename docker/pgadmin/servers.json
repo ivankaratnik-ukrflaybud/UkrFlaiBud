@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "UKRFLYBUD PostgreSQL",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "ukrflybud",
+      "Username": "ukrflybud",
+      "SSLMode": "prefer"
+    }
+  }
+}
+

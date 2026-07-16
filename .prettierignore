@@ -1,0 +1,12 @@
+.git
+.venv
+backend/.venv
+coverage
+frontend/.vite
+frontend/dist
+frontend/node_modules
+logs
+node_modules
+pgadmin-data
+postgres-data
+

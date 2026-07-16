@@ -1,0 +1,155 @@
+name: ukrflybud-manager
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ukrflybud-postgres
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ukrflybud}
+      POSTGRES_USER: ${POSTGRES_USER:-ukrflybud}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ukrflybud
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ukrflybud-backend
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      APP_NAME: ${APP_NAME:-UKRFLYBUD Manager API}
+      APP_ENV: ${APP_ENV:-local}
+      APP_LOCALE: ${APP_LOCALE:-uk-UA}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Kyiv}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://ukrflybud:change-me@postgres:5432/ukrflybud}
+      CORS_ORIGINS: "${CORS_ORIGINS:-http://localhost:8080,http://localhost:5173}"
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOGGING_CONFIG_PATH: ${LOGGING_CONFIG_PATH:-logging.yaml}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./logging.yaml:/app/logging.yaml:ro
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=3).read()
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ukrflybud
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ukrflybud-frontend
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+      VITE_DEFAULT_LOCALE: ${VITE_DEFAULT_LOCALE:-uk-UA}
+      VITE_TIMEZONE: ${VITE_TIMEZONE:-Europe/Kyiv}
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://localhost:5173', (res) => process.exit(res.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ukrflybud
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: ukrflybud-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-8080}:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q --spider http://127.0.0.1/ || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ukrflybud
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: ukrflybud-pgadmin
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@ukrflybud.test}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-change-me}
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1/misc/ping', timeout=3).read()
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ukrflybud
+
+networks:
+  ukrflybud:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  pgadmin-data:

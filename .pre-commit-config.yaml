@@ -1,0 +1,65 @@
+default_install_hook_types:
+  - pre-commit
+  - pre-push
+
+default_stages:
+  - pre-commit
+
+repos:
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        name: black
+        language_version: python3.13
+        files: ^backend/
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+        name: isort
+        files: ^backend/
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.10
+    hooks:
+      - id: ruff
+        name: ruff
+        args:
+          - --fix
+        files: ^backend/
+      - id: ruff-format
+        name: ruff format
+        files: ^backend/
+
+  - repo: local
+    hooks:
+      - id: frontend-eslint
+        name: frontend eslint
+        entry: npm --prefix frontend run lint:fix
+        language: system
+        pass_filenames: false
+        files: ^frontend/
+        types_or:
+          - ts
+          - tsx
+          - javascript
+          - jsx
+
+      - id: frontend-prettier
+        name: prettier
+        entry: npm --prefix frontend run format
+        language: system
+        pass_filenames: false
+        files: ^(frontend/|docs/|docker/|\.vscode/|README\.md|docker-compose\.yml|logging\.yaml|\.pre-commit-config\.yaml|\.editorconfig)
+        types_or:
+          - ts
+          - tsx
+          - javascript
+          - jsx
+          - json
+          - css
+          - html
+          - markdown
+          - yaml

@@ -1,0 +1,23 @@
+{
+  "app": {
+    "name": "Manager"
+  },
+  "status": {
+    "infrastructureReady": "Infrastructure ready"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Enter a valid email address"
+  },
+  "notifications": {
+    "success": "Operation completed successfully",
+    "error": "Something went wrong"
+  }
+}
+

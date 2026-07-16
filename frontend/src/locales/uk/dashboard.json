@@ -1,0 +1,26 @@
+{
+  "title": "UKRFLYBUD Manager",
+  "subtitle": "Фундамент ERP-платформи готовий до наступних ітерацій: чиста архітектура, Docker-середовище, локалізація та базові інфраструктурні сервіси.",
+  "api": {
+    "title": "Backend API",
+    "description": "FastAPI-сервіс підготовлено для шарів API, сервісів, репозиторіїв, бази даних і доменних моделей."
+  },
+  "database": {
+    "title": "PostgreSQL 16",
+    "description": "База даних запускається через Docker Compose разом із pgAdmin та Nginx."
+  },
+  "modules": {
+    "title": "Підготовлені напрями ERP",
+    "items": {
+      "projects": "Проєкти",
+      "procurement": "Закупівлі",
+      "inventory": "Складський облік",
+      "warehouse": "Склади",
+      "accounting": "Бухгалтерія",
+      "crm": "CRM",
+      "hr": "HR"
+    }
+  },
+  "localeSummary": "Локаль: {{locale}}. Часовий пояс: {{timezone}}."
+}
+
