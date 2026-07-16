@@ -1,6 +1,6 @@
 # UKRFLYBUD Manager
 
-UKRFLYBUD Manager is a production-oriented ERP platform skeleton for long-term enterprise development. This sprint implements only infrastructure, project structure, configuration, and localization foundations.
+UKRFLYBUD Manager is a production-oriented ERP platform skeleton for long-term enterprise development. The current backend scope includes reusable core platform foundations only: domain primitives, repository and Unit of Work infrastructure, API error handling, audit-log persistence, and reliable outbox persistence.
 
 ## Stack
 
@@ -42,6 +42,16 @@ Run all hooks manually:
 pre-commit run --all-files
 ```
 
+Backend-only checks can be run from the backend directory:
+
+```bash
+pip install -e ".[dev]"
+black --check app tests
+isort --check-only app tests
+ruff check app tests
+pytest
+```
+
 Configured tools:
 
 - Backend: Black, isort, Ruff
@@ -51,6 +61,25 @@ Configured tools:
 ## Healthchecks and Logs
 
 Docker healthchecks are configured for PostgreSQL, backend, frontend, and Nginx. Backend logs are configured through `logging.yaml` and written to `logs/backend.log` during local development.
+
+Verify Docker configuration and service health:
+
+```bash
+docker compose config
+docker compose up --build --wait
+docker compose ps
+```
+
+## Database Migrations
+
+Run migrations from the backend directory:
+
+```bash
+alembic upgrade head
+alembic downgrade -1
+```
+
+Use `alembic downgrade base` only for disposable local or test databases.
 
 ## Repository Layout
 
@@ -72,4 +101,4 @@ The primary UI language is Ukrainian. The default locale is `uk-UA`, timezone is
 
 ## Current Scope
 
-Authentication, authorization, users, tasks, ERP workflows, and business logic are intentionally not implemented yet.
+Authentication, authorization, users, roles, tasks, warehouse, procurement, production, products, documents, notifications, ERP workflows, and business logic are intentionally not implemented yet.

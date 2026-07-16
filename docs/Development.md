@@ -31,6 +31,41 @@ pre-commit install
 
 The hooks run Black, isort, Ruff, Prettier, and ESLint. EditorConfig covers Python, TypeScript, JSON, YAML, and Markdown.
 
+Backend-only commands:
+
+```bash
+cd backend
+pip install -e ".[dev]"
+black --check app tests
+isort --check-only app tests
+ruff check app tests
+pytest
+```
+
+No static type checker is configured yet for the backend. All new Python code should still use explicit type annotations.
+
+## Database Migrations
+
+Run Alembic from the backend directory:
+
+```bash
+alembic upgrade head
+alembic downgrade -1
+alembic downgrade base
+```
+
+`downgrade base` is destructive and should be used only with disposable local or test databases.
+
+## Docker Verification
+
+Validate Compose and wait for service healthchecks:
+
+```bash
+docker compose config
+docker compose up --build --wait
+docker compose ps
+```
+
 ## Logs
 
 Local backend logging is configured by `logging.yaml`. Runtime log files are written to `logs/`; only `logs/.gitkeep` is committed.

@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.errors import register_exception_handlers
 from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.logging import configure_logging
+from app.middleware.correlation import CorrelationIdMiddleware
 
 
 def create_app() -> FastAPI:
@@ -23,7 +25,9 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(CorrelationIdMiddleware)
 
+    register_exception_handlers(app)
     app.include_router(api_router, prefix="/api/v1")
 
     return app

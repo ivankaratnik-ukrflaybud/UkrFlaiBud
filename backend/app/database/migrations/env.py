@@ -6,6 +6,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.core.config import settings
+from app.database import audit, outbox  # noqa: F401
 from app.database.base import Base
 
 config = context.config
@@ -55,4 +56,3 @@ else:
     import asyncio
 
     asyncio.run(run_migrations_online())
-

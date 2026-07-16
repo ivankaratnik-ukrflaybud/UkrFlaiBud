@@ -124,7 +124,7 @@ services:
       - path: .env
         required: false
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@ukrflybud.test}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@ukrflybud.example.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-change-me}
     ports:
       - "${PGADMIN_PORT:-5050}:80"

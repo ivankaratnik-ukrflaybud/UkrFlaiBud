@@ -21,10 +21,17 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "black>=25.0,<26.0",
+  "httpx>=0.28,<1.0",
   "isort>=6.0,<7.0",
   "pre-commit>=4.0,<5.0",
+  "pytest>=8.3,<9.0",
+  "pytest-asyncio>=0.25,<1.0",
   "ruff>=0.9,<1.0",
 ]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
 
 [tool.setuptools.packages.find]
 include = ["app*"]
