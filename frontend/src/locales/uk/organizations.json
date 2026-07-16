@@ -1,0 +1,83 @@
+{
+  "moduleSubtitle": "Довідники організаційної структури без автентифікації та ролей.",
+  "departmentTree": "Ієрархія підрозділів",
+  "emptyState": "Записів поки немає",
+  "navigation": {
+    "dashboard": "Панель",
+    "organizations": "Організації",
+    "departments": "Підрозділи",
+    "positions": "Посади",
+    "employees": "Працівники"
+  },
+  "pages": {
+    "organizations": "Організації",
+    "departments": "Підрозділи",
+    "positions": "Посади",
+    "employees": "Працівники"
+  },
+  "actions": {
+    "title": "Дії",
+    "createOrganization": "Створити організацію",
+    "createDepartment": "Створити підрозділ",
+    "createPosition": "Створити посаду",
+    "createEmployee": "Створити працівника",
+    "view": "Переглянути",
+    "edit": "Редагувати",
+    "delete": "Видалити"
+  },
+  "deleteDialog": {
+    "title": "Підтвердьте видалення",
+    "description": "Запис буде мʼяко видалено та приховано зі списків."
+  },
+  "filters": {
+    "all": "Усі"
+  },
+  "pagination": {
+    "rowsPerPage": "Рядків на сторінці"
+  },
+  "values": {
+    "active": "Активний",
+    "inactive": "Неактивний",
+    "empty": "Не вказано"
+  },
+  "statuses": {
+    "active": "Працює",
+    "on_leave": "У відпустці",
+    "terminated": "Звільнений"
+  },
+  "errors": {
+    "generic": "Сталася помилка"
+  },
+  "fields": {
+    "id": "ID",
+    "name": "Назва",
+    "short_name": "Коротка назва",
+    "legal_name": "Юридична назва",
+    "edrpou": "ЄДРПОУ",
+    "tax_number": "Податковий номер",
+    "email": "Електронна пошта",
+    "phone": "Телефон",
+    "website": "Вебсайт",
+    "address": "Адреса",
+    "is_active": "Активність",
+    "organization_id": "Організація",
+    "parent_department_id": "Батьківський підрозділ",
+    "department_id": "Підрозділ",
+    "position_id": "Посада",
+    "manager_employee_id": "Керівник",
+    "description": "Опис",
+    "code": "Код",
+    "personnel_number": "Табельний номер",
+    "first_name": "Імʼя",
+    "last_name": "Прізвище",
+    "middle_name": "По батькові",
+    "hire_date": "Дата прийняття",
+    "termination_date": "Дата звільнення",
+    "status": "Статус",
+    "supervisor_employee_id": "Керівник працівника",
+    "notes": "Нотатки",
+    "version": "Версія",
+    "created_at": "Створено",
+    "updated_at": "Оновлено"
+  }
+}

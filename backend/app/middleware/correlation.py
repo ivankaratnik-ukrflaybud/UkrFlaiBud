@@ -1,3 +1,4 @@
+from typing import cast
 from uuid import UUID, uuid4
 
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -28,7 +29,7 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
 
         token = correlation_id_var.set(correlation_id)
         try:
-            response = await call_next(request)
+            response = cast(Response, await call_next(request))
         finally:
             correlation_id_var.reset(token)
 

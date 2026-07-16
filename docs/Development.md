@@ -39,10 +39,20 @@ pip install -e ".[dev]"
 black --check app tests
 isort --check-only app tests
 ruff check app tests
+mypy app
 pytest
 ```
 
-No static type checker is configured yet for the backend. All new Python code should still use explicit type annotations.
+The backend type-check command is `mypy app`.
+
+Frontend commands:
+
+```bash
+cd frontend
+npm install
+npm run lint
+npm run build
+```
 
 ## Database Migrations
 
@@ -65,6 +75,17 @@ docker compose config
 docker compose up --build --wait
 docker compose ps
 ```
+
+## Organization Core Endpoints
+
+The Organization Core module is available under `/api/v1`:
+
+- `/organizations`
+- `/departments`
+- `/positions`
+- `/employees`
+
+Each collection supports `page`, `page_size`, `sort_by`, and `sort_direction`. Additional filters are available for organization, department, position, employee status, active state, codes, names, and ownership links.
 
 ## Logs
 

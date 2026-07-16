@@ -1,6 +1,6 @@
 # UKRFLYBUD Manager
 
-UKRFLYBUD Manager is a production-oriented ERP platform skeleton for long-term enterprise development. The current backend scope includes reusable core platform foundations only: domain primitives, repository and Unit of Work infrastructure, API error handling, audit-log persistence, and reliable outbox persistence.
+UKRFLYBUD Manager is a production-oriented ERP platform skeleton for long-term enterprise development. The current scope includes reusable core platform foundations plus the Organization Core module for organizations, departments, positions, and employees.
 
 ## Stack
 
@@ -49,12 +49,13 @@ pip install -e ".[dev]"
 black --check app tests
 isort --check-only app tests
 ruff check app tests
+mypy app
 pytest
 ```
 
 Configured tools:
 
-- Backend: Black, isort, Ruff
+- Backend: Black, isort, Ruff, mypy, pytest
 - Frontend and project config files: Prettier, ESLint
 - Editor behavior: `.editorconfig` and `.vscode/`
 
@@ -81,6 +82,17 @@ alembic downgrade -1
 
 Use `alembic downgrade base` only for disposable local or test databases.
 
+## Organization Core API
+
+The first business module exposes these versioned endpoints:
+
+- `POST /api/v1/organizations`, `GET /api/v1/organizations`, `GET /api/v1/organizations/{id}`, `PATCH /api/v1/organizations/{id}`, `DELETE /api/v1/organizations/{id}`
+- `POST /api/v1/departments`, `GET /api/v1/departments`, `GET /api/v1/departments/{id}`, `PATCH /api/v1/departments/{id}`, `DELETE /api/v1/departments/{id}`
+- `POST /api/v1/positions`, `GET /api/v1/positions`, `GET /api/v1/positions/{id}`, `PATCH /api/v1/positions/{id}`, `DELETE /api/v1/positions/{id}`
+- `POST /api/v1/employees`, `GET /api/v1/employees`, `GET /api/v1/employees/{id}`, `PATCH /api/v1/employees/{id}`, `DELETE /api/v1/employees/{id}`
+
+List endpoints support pagination, filtering, and sorting. Update requests require the current `version` for optimistic concurrency.
+
 ## Repository Layout
 
 ```text
@@ -101,4 +113,4 @@ The primary UI language is Ukrainian. The default locale is `uk-UA`, timezone is
 
 ## Current Scope
 
-Authentication, authorization, users, roles, tasks, warehouse, procurement, production, products, documents, notifications, ERP workflows, and business logic are intentionally not implemented yet.
+Authentication, authorization, users, roles, tasks, warehouse, procurement, production, products, documents, notifications, and unrelated ERP workflows are intentionally not implemented yet.

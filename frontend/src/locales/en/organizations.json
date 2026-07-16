@@ -1,0 +1,83 @@
+{
+  "moduleSubtitle": "Organization structure directories without authentication or roles.",
+  "departmentTree": "Department hierarchy",
+  "emptyState": "No records yet",
+  "navigation": {
+    "dashboard": "Dashboard",
+    "organizations": "Organizations",
+    "departments": "Departments",
+    "positions": "Positions",
+    "employees": "Employees"
+  },
+  "pages": {
+    "organizations": "Organizations",
+    "departments": "Departments",
+    "positions": "Positions",
+    "employees": "Employees"
+  },
+  "actions": {
+    "title": "Actions",
+    "createOrganization": "Create organization",
+    "createDepartment": "Create department",
+    "createPosition": "Create position",
+    "createEmployee": "Create employee",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "deleteDialog": {
+    "title": "Confirm deletion",
+    "description": "The record will be soft deleted and hidden from lists."
+  },
+  "filters": {
+    "all": "All"
+  },
+  "pagination": {
+    "rowsPerPage": "Rows per page"
+  },
+  "values": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "empty": "Not set"
+  },
+  "statuses": {
+    "active": "Active",
+    "on_leave": "On leave",
+    "terminated": "Terminated"
+  },
+  "errors": {
+    "generic": "Something went wrong"
+  },
+  "fields": {
+    "id": "ID",
+    "name": "Name",
+    "short_name": "Short name",
+    "legal_name": "Legal name",
+    "edrpou": "EDRPOU",
+    "tax_number": "Tax number",
+    "email": "Email",
+    "phone": "Phone",
+    "website": "Website",
+    "address": "Address",
+    "is_active": "Active",
+    "organization_id": "Organization",
+    "parent_department_id": "Parent department",
+    "department_id": "Department",
+    "position_id": "Position",
+    "manager_employee_id": "Manager",
+    "description": "Description",
+    "code": "Code",
+    "personnel_number": "Personnel number",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "middle_name": "Middle name",
+    "hire_date": "Hire date",
+    "termination_date": "Termination date",
+    "status": "Status",
+    "supervisor_employee_id": "Supervisor",
+    "notes": "Notes",
+    "version": "Version",
+    "created_at": "Created",
+    "updated_at": "Updated"
+  }
+}

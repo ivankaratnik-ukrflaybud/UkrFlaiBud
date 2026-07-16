@@ -20,6 +20,9 @@ os.environ.setdefault(
 )
 
 from app.database.base import Base  # noqa: E402
+from app.modules.organizations.infrastructure import (  # noqa: E402, F401
+    models as organization_models,
+)
 from tests.support import TechnicalRecord  # noqa: E402, F401
 
 

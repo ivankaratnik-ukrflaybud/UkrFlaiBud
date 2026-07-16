@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -32,9 +32,9 @@ DOMAIN_STATUS_CODES: dict[type[DomainError], int] = {
 
 
 def register_exception_handlers(app: FastAPI) -> None:
-    app.add_exception_handler(DomainError, domain_error_handler)
-    app.add_exception_handler(RequestValidationError, request_validation_error_handler)
-    app.add_exception_handler(HTTPException, http_exception_handler)
+    app.add_exception_handler(DomainError, cast(Any, domain_error_handler))
+    app.add_exception_handler(RequestValidationError, cast(Any, request_validation_error_handler))
+    app.add_exception_handler(HTTPException, cast(Any, http_exception_handler))
     app.add_exception_handler(Exception, unhandled_exception_handler)
 
 

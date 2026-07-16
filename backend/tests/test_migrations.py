@@ -45,13 +45,30 @@ def test_alembic_upgrade_downgrade_and_reupgrade(disposable_database: str) -> No
 
     command.upgrade(config, "head")
     names_after_upgrade = asyncio.run(table_names(disposable_database))
-    assert {"audit_log", "outbox_event", "alembic_version"}.issubset(names_after_upgrade)
+    assert {
+        "audit_log",
+        "outbox_event",
+        "organizations",
+        "departments",
+        "positions",
+        "employees",
+        "alembic_version",
+    }.issubset(names_after_upgrade)
 
     command.downgrade(config, "base")
     names_after_downgrade = asyncio.run(table_names(disposable_database))
     assert "audit_log" not in names_after_downgrade
     assert "outbox_event" not in names_after_downgrade
+    assert "organizations" not in names_after_downgrade
 
     command.upgrade(config, "head")
     names_after_reupgrade = asyncio.run(table_names(disposable_database))
-    assert {"audit_log", "outbox_event", "alembic_version"}.issubset(names_after_reupgrade)
+    assert {
+        "audit_log",
+        "outbox_event",
+        "organizations",
+        "departments",
+        "positions",
+        "employees",
+        "alembic_version",
+    }.issubset(names_after_reupgrade)
