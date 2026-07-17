@@ -306,7 +306,7 @@ async def test_openapi_route_registration_and_api_error_format(db_session: Async
     app.dependency_overrides[get_unit_of_work] = override_unit_of_work
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         openapi_response = await client.get("/openapi.json")
-        not_found_response = await client.get(
+        permission_response = await client.get(
             "/api/v1/organizations/00000000-0000-0000-0000-000000000001"
         )
 
@@ -315,5 +315,5 @@ async def test_openapi_route_registration_and_api_error_format(db_session: Async
     assert "/api/v1/departments" in paths
     assert "/api/v1/positions" in paths
     assert "/api/v1/employees" in paths
-    assert not_found_response.status_code == 404
-    assert not_found_response.json()["code"] == "entity_not_found"
+    assert permission_response.status_code == 403
+    assert permission_response.json()["code"] == "permission_denied"

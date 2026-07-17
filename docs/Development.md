@@ -51,6 +51,8 @@ Frontend commands:
 cd frontend
 npm install
 npm run lint
+npm run typecheck
+npm test
 npm run build
 ```
 
@@ -78,7 +80,7 @@ docker compose ps
 
 ## Organization Core Endpoints
 
-The Organization Core module is available under `/api/v1`:
+The Organization Core module is available under `/api/v1` and requires a Bearer access token with the matching `*.read` or `*.manage` permission:
 
 - `/organizations`
 - `/departments`
@@ -86,6 +88,41 @@ The Organization Core module is available under `/api/v1`:
 - `/employees`
 
 Each collection supports `page`, `page_size`, `sort_by`, and `sort_direction`. Additional filters are available for organization, department, position, employee status, active state, codes, names, and ownership links.
+
+## Identity & Access
+
+Apply migrations before first local use, then sign in with the bootstrap administrator from `.env` or the Compose defaults:
+
+```bash
+cd backend
+alembic upgrade head
+```
+
+Important local settings:
+
+- `BOOTSTRAP_ADMIN_EMAIL`
+- `BOOTSTRAP_ADMIN_NAME`
+- `BOOTSTRAP_ADMIN_PASSWORD`
+- `AUTH_SECRET_KEY`
+- `AUTH_ACCESS_TOKEN_MINUTES`
+- `AUTH_REFRESH_TOKEN_DAYS`
+- `AUTH_FAILED_LOGIN_LIMIT`
+- `AUTH_LOCK_MINUTES`
+- `AUTH_COOKIE_SECURE`
+- `AUTH_COOKIE_SAMESITE`
+
+Identity endpoints:
+
+- `/auth/login`
+- `/auth/refresh`
+- `/auth/logout`
+- `/auth/change-password`
+- `/auth/sessions`
+- `/users`
+- `/roles`
+- `/permissions`
+
+Ukrainian administration instructions are in `docs/UserAdministration.uk.md`.
 
 ## Logs
 

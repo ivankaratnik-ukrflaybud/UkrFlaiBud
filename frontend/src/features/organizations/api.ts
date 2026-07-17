@@ -1,4 +1,4 @@
-import { apiBaseUrl } from '../../services/apiClient';
+import { apiBaseUrl, apiRequest } from '../../services/apiClient';
 import type {
   Department,
   Employee,
@@ -42,14 +42,14 @@ export async function listEntities<K extends EntityKind>(
     }
   });
 
-  return request<PaginatedResponse<EntityMap[K]>>(`${pathFor(kind)}?${searchParams.toString()}`);
+  return apiRequest<PaginatedResponse<EntityMap[K]>>(`${pathFor(kind)}?${searchParams.toString()}`);
 }
 
 export async function createEntity<K extends EntityKind>(
   kind: K,
   payload: Record<string, unknown>,
 ): Promise<EntityMap[K]> {
-  return request<EntityMap[K]>(pathFor(kind), {
+  return apiRequest<EntityMap[K]>(pathFor(kind), {
     body: JSON.stringify(payload),
     method: 'POST',
   });
@@ -60,37 +60,16 @@ export async function updateEntity<K extends EntityKind>(
   id: string,
   payload: Record<string, unknown>,
 ): Promise<EntityMap[K]> {
-  return request<EntityMap[K]>(`${pathFor(kind)}/${id}`, {
+  return apiRequest<EntityMap[K]>(`${pathFor(kind)}/${id}`, {
     body: JSON.stringify(payload),
     method: 'PATCH',
   });
 }
 
 export async function deleteEntity(kind: EntityKind, id: string): Promise<void> {
-  await request<void>(`${pathFor(kind)}/${id}`, { method: 'DELETE' });
+  await apiRequest<void>(`${pathFor(kind)}/${id}`, { method: 'DELETE' });
 }
 
 function pathFor(kind: EntityKind): string {
   return `${apiBaseUrl}/v1/${kind}`;
-}
-
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(path, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(init.headers ?? {}),
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw error;
-  }
-
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  return response.json() as Promise<T>;
 }

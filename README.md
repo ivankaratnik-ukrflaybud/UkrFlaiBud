@@ -1,6 +1,6 @@
 # UKRFLYBUD Manager
 
-UKRFLYBUD Manager is a production-oriented ERP platform skeleton for long-term enterprise development. The current scope includes reusable core platform foundations plus the Organization Core module for organizations, departments, positions, and employees.
+UKRFLYBUD Manager is a production-oriented ERP platform skeleton for long-term enterprise development. The current scope includes reusable core platform foundations, Identity & Access, and the Organization Core module for organizations, departments, positions, and employees.
 
 ## Stack
 
@@ -53,6 +53,15 @@ mypy app
 pytest
 ```
 
+Frontend-only checks can be run from the frontend directory:
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
 Configured tools:
 
 - Backend: Black, isort, Ruff, mypy, pytest
@@ -81,6 +90,30 @@ alembic downgrade -1
 ```
 
 Use `alembic downgrade base` only for disposable local or test databases.
+
+## Identity & Access
+
+Local bootstrap settings create the first administrator and system RBAC templates:
+
+- `BOOTSTRAP_ADMIN_EMAIL`
+- `BOOTSTRAP_ADMIN_NAME`
+- `BOOTSTRAP_ADMIN_PASSWORD`
+- `AUTH_SECRET_KEY`
+- `AUTH_ACCESS_TOKEN_MINUTES`
+- `AUTH_REFRESH_TOKEN_DAYS`
+- `AUTH_FAILED_LOGIN_LIMIT`
+- `AUTH_LOCK_MINUTES`
+
+Refresh tokens are stored in HttpOnly cookies. Access tokens are short-lived and sent as Bearer tokens by the frontend.
+
+Identity endpoints are available under `/api/v1`:
+
+- `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `POST /auth/logout-all`, `GET /auth/me`, `POST /auth/change-password`, `GET /auth/sessions`
+- `GET /users`, `POST /users`, `GET /users/{id}`, `PATCH /users/{id}`, `DELETE /users/{id}`, `POST /users/{id}/reset-password`, `PUT /users/{id}/roles`
+- `GET /roles`, `POST /roles`, `GET /roles/{id}`, `PATCH /roles/{id}`, `DELETE /roles/{id}`, `PUT /roles/{id}/permissions`
+- `GET /permissions`
+
+See `docs/UserAdministration.uk.md` for Ukrainian user administration steps.
 
 ## Organization Core API
 
@@ -113,4 +146,4 @@ The primary UI language is Ukrainian. The default locale is `uk-UA`, timezone is
 
 ## Current Scope
 
-Authentication, authorization, users, roles, tasks, warehouse, procurement, production, products, documents, notifications, and unrelated ERP workflows are intentionally not implemented yet.
+Tasks, warehouse, procurement, production, products, documents, notifications, and unrelated ERP workflows are intentionally not implemented yet.

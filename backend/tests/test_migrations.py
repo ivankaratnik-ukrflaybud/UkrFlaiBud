@@ -52,6 +52,14 @@ def test_alembic_upgrade_downgrade_and_reupgrade(disposable_database: str) -> No
         "departments",
         "positions",
         "employees",
+        "users",
+        "roles",
+        "permissions",
+        "user_roles",
+        "role_permissions",
+        "user_sessions",
+        "login_attempts",
+        "password_reset_tokens",
         "alembic_version",
     }.issubset(names_after_upgrade)
 
@@ -60,6 +68,7 @@ def test_alembic_upgrade_downgrade_and_reupgrade(disposable_database: str) -> No
     assert "audit_log" not in names_after_downgrade
     assert "outbox_event" not in names_after_downgrade
     assert "organizations" not in names_after_downgrade
+    assert "users" not in names_after_downgrade
 
     command.upgrade(config, "head")
     names_after_reupgrade = asyncio.run(table_names(disposable_database))
@@ -70,5 +79,13 @@ def test_alembic_upgrade_downgrade_and_reupgrade(disposable_database: str) -> No
         "departments",
         "positions",
         "employees",
+        "users",
+        "roles",
+        "permissions",
+        "user_roles",
+        "role_permissions",
+        "user_sessions",
+        "login_attempts",
+        "password_reset_tokens",
         "alembic_version",
     }.issubset(names_after_reupgrade)

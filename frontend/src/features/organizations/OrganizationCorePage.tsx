@@ -6,19 +6,16 @@ import {
   Alert,
   Box,
   Button,
-  Checkbox,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Drawer,
-  FormControlLabel,
   IconButton,
   List,
   ListItem,
   ListItemText,
-  MenuItem,
   Paper,
   Stack,
   Table,
@@ -29,159 +26,29 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-  TextField,
   Toolbar,
   Tooltip,
   Typography,
 } from '@mui/material';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
-import { Controller, Resolver, useForm } from 'react-hook-form';
+import { Resolver, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { queryClient } from '../../services/queryClient';
 import { createEntity, deleteEntity, EntityKind, listEntities, updateEntity } from './api';
-import type {
-  ApiError,
-  Department,
-  Employee,
-  EmployeeStatus,
-  Organization,
-  OrganizationEntity,
-  Position,
-  SortDirection,
-} from './types';
-
-type FieldType = 'text' | 'email' | 'date' | 'boolean' | 'organization' | 'department' | 'position' | 'employee' | 'status';
-
-interface FieldConfig {
-  name: string;
-  type: FieldType;
-  required?: boolean;
-  multiline?: boolean;
-}
-
-interface PageConfig {
-  kind: EntityKind;
-  titleKey: string;
-  createKey: string;
-  fields: FieldConfig[];
-  columns: string[];
-  filters: FieldConfig[];
-  defaultSort: string;
-}
-
-type FormValues = Record<string, string | boolean>;
-
-const emptyOption = '';
-
-const pageConfigs: Record<EntityKind, PageConfig> = {
-  organizations: {
-    kind: 'organizations',
-    titleKey: 'organizations:pages.organizations',
-    createKey: 'organizations:actions.createOrganization',
-    defaultSort: 'name',
-    fields: [
-      { name: 'name', type: 'text', required: true },
-      { name: 'short_name', type: 'text', required: true },
-      { name: 'legal_name', type: 'text', required: true },
-      { name: 'edrpou', type: 'text', required: true },
-      { name: 'tax_number', type: 'text' },
-      { name: 'email', type: 'email' },
-      { name: 'phone', type: 'text' },
-      { name: 'website', type: 'text' },
-      { name: 'address', type: 'text', multiline: true },
-      { name: 'is_active', type: 'boolean' },
-    ],
-    columns: ['name', 'short_name', 'edrpou', 'is_active', 'version'],
-    filters: [
-      { name: 'name', type: 'text' },
-      { name: 'edrpou', type: 'text' },
-      { name: 'is_active', type: 'boolean' },
-    ],
-  },
-  departments: {
-    kind: 'departments',
-    titleKey: 'organizations:pages.departments',
-    createKey: 'organizations:actions.createDepartment',
-    defaultSort: 'name',
-    fields: [
-      { name: 'organization_id', type: 'organization', required: true },
-      { name: 'parent_department_id', type: 'department' },
-      { name: 'name', type: 'text', required: true },
-      { name: 'code', type: 'text' },
-      { name: 'description', type: 'text', multiline: true },
-      { name: 'manager_employee_id', type: 'employee' },
-      { name: 'is_active', type: 'boolean' },
-    ],
-    columns: ['name', 'code', 'organization_id', 'parent_department_id', 'is_active', 'version'],
-    filters: [
-      { name: 'organization_id', type: 'organization' },
-      { name: 'parent_department_id', type: 'department' },
-      { name: 'name', type: 'text' },
-      { name: 'code', type: 'text' },
-      { name: 'is_active', type: 'boolean' },
-    ],
-  },
-  positions: {
-    kind: 'positions',
-    titleKey: 'organizations:pages.positions',
-    createKey: 'organizations:actions.createPosition',
-    defaultSort: 'name',
-    fields: [
-      { name: 'organization_id', type: 'organization', required: true },
-      { name: 'department_id', type: 'department' },
-      { name: 'name', type: 'text', required: true },
-      { name: 'code', type: 'text' },
-      { name: 'description', type: 'text', multiline: true },
-      { name: 'is_active', type: 'boolean' },
-    ],
-    columns: ['name', 'code', 'organization_id', 'department_id', 'is_active', 'version'],
-    filters: [
-      { name: 'organization_id', type: 'organization' },
-      { name: 'department_id', type: 'department' },
-      { name: 'name', type: 'text' },
-      { name: 'code', type: 'text' },
-      { name: 'is_active', type: 'boolean' },
-    ],
-  },
-  employees: {
-    kind: 'employees',
-    titleKey: 'organizations:pages.employees',
-    createKey: 'organizations:actions.createEmployee',
-    defaultSort: 'last_name',
-    fields: [
-      { name: 'organization_id', type: 'organization', required: true },
-      { name: 'department_id', type: 'department' },
-      { name: 'position_id', type: 'position' },
-      { name: 'personnel_number', type: 'text' },
-      { name: 'first_name', type: 'text', required: true },
-      { name: 'last_name', type: 'text', required: true },
-      { name: 'middle_name', type: 'text' },
-      { name: 'email', type: 'email' },
-      { name: 'phone', type: 'text' },
-      { name: 'hire_date', type: 'date' },
-      { name: 'termination_date', type: 'date' },
-      { name: 'status', type: 'status', required: true },
-      { name: 'supervisor_employee_id', type: 'employee' },
-      { name: 'notes', type: 'text', multiline: true },
-    ],
-    columns: ['last_name', 'first_name', 'personnel_number', 'department_id', 'status', 'version'],
-    filters: [
-      { name: 'organization_id', type: 'organization' },
-      { name: 'department_id', type: 'department' },
-      { name: 'position_id', type: 'position' },
-      { name: 'supervisor_employee_id', type: 'employee' },
-      { name: 'status', type: 'status' },
-      { name: 'name', type: 'text' },
-    ],
-  },
-};
-
-const employeeStatuses: EmployeeStatus[] = ['active', 'on_leave', 'terminated'];
+import { pageConfigs } from './config';
+import { EntityFilterControl, EntityFormControl } from './OrganizationControls';
+import type { ApiError, OrganizationEntity, SortDirection } from './types';
+import {
+  buildDepartmentTree,
+  formatValue,
+  formValuesFor,
+  normalizePayload,
+  schemaFor,
+  type FormValues,
+} from './utils';
 
 export function OrganizationCorePage({ kind }: { kind: EntityKind }) {
   const config = pageConfigs[kind];
@@ -288,7 +155,7 @@ export function OrganizationCorePage({ kind }: { kind: EntityKind }) {
           }}
         >
           {config.filters.map((field) => (
-            <FilterControl
+            <EntityFilterControl
               key={field.name}
               field={field}
               value={filters[field.name]}
@@ -420,7 +287,7 @@ export function OrganizationCorePage({ kind }: { kind: EntityKind }) {
               {editing ? t('organizations:actions.edit') : t(config.createKey)}
             </Typography>
             {config.fields.map((field) => (
-              <FormControl
+              <EntityFormControl
                 key={field.name}
                 control={form.control}
                 errors={form.formState.errors}
@@ -506,260 +373,7 @@ function useLookupQuery<K extends EntityKind>(kind: K) {
   });
 }
 
-function FormControl({
-  control,
-  departments,
-  employees,
-  errors,
-  field,
-  organizations,
-  positions,
-  register,
-}: {
-  control: ReturnType<typeof useForm<FormValues>>['control'];
-  departments: Department[];
-  employees: Employee[];
-  errors: ReturnType<typeof useForm<FormValues>>['formState']['errors'];
-  field: FieldConfig;
-  organizations: Organization[];
-  positions: Position[];
-  register: ReturnType<typeof useForm<FormValues>>['register'];
-}) {
-  const { t } = useTranslation(['common', 'organizations']);
-  const label = t(`organizations:fields.${field.name}`);
-  if (field.type === 'boolean') {
-    return (
-      <Controller
-        control={control}
-        name={field.name}
-        render={({ field: controllerField }) => (
-          <FormControlLabel
-            control={<Checkbox checked={Boolean(controllerField.value)} onChange={(_, checked) => controllerField.onChange(checked)} />}
-            label={label}
-          />
-        )}
-      />
-    );
-  }
-
-  const options = optionsFor(field.type, { departments, employees, organizations, positions, t });
-  return (
-    <TextField
-      select={options.length > 0}
-      error={Boolean(errors[field.name])}
-      helperText={errors[field.name]?.message as string | undefined}
-      label={label}
-      multiline={field.multiline}
-      rows={field.multiline ? 3 : undefined}
-      type={field.type === 'date' ? 'date' : 'text'}
-      InputLabelProps={field.type === 'date' ? { shrink: true } : undefined}
-      {...register(field.name)}
-    >
-      {options.map((option) => (
-        <MenuItem key={option.value} value={option.value}>
-          {option.label}
-        </MenuItem>
-      ))}
-    </TextField>
-  );
-}
-
-function FilterControl({
-  departments,
-  employees,
-  field,
-  onChange,
-  organizations,
-  positions,
-  value,
-}: {
-  departments: Department[];
-  employees: Employee[];
-  field: FieldConfig;
-  onChange: (value: string | boolean) => void;
-  organizations: Organization[];
-  positions: Position[];
-  value: string | boolean | undefined;
-}) {
-  const { t } = useTranslation(['organizations']);
-  const label = t(`fields.${field.name}`);
-  if (field.type === 'boolean') {
-    return (
-      <TextField
-        select
-        label={label}
-        value={value === undefined ? emptyOption : String(value)}
-        onChange={(event) => onChange(event.target.value === emptyOption ? emptyOption : event.target.value === 'true')}
-      >
-        <MenuItem value={emptyOption}>{t('filters.all')}</MenuItem>
-        <MenuItem value="true">{t('values.active')}</MenuItem>
-        <MenuItem value="false">{t('values.inactive')}</MenuItem>
-      </TextField>
-    );
-  }
-  const options = optionsFor(field.type, { departments, employees, organizations, positions, t });
-  return (
-    <TextField
-      select={options.length > 0}
-      label={label}
-      value={value ?? emptyOption}
-      onChange={(event) => onChange(event.target.value)}
-    >
-      {options.length > 0
-        ? options.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))
-        : null}
-    </TextField>
-  );
-}
-
 function ErrorAlert({ error }: { error: ApiError }) {
   const { t } = useTranslation(['organizations']);
   return <Alert severity="error">{error.message ?? t('errors.generic')}</Alert>;
-}
-
-function optionsFor(
-  type: FieldType,
-  lookups: {
-    departments: Department[];
-    employees: Employee[];
-    organizations: Organization[];
-    positions: Position[];
-    t: (key: string) => string;
-  },
-): { label: string; value: string }[] {
-  const empty = { label: lookups.t('filters.all'), value: emptyOption };
-  if (type === 'organization') {
-    return [empty, ...lookups.organizations.map((item) => ({ label: item.name, value: item.id }))];
-  }
-  if (type === 'department') {
-    return [empty, ...lookups.departments.map((item) => ({ label: item.name, value: item.id }))];
-  }
-  if (type === 'position') {
-    return [empty, ...lookups.positions.map((item) => ({ label: item.name, value: item.id }))];
-  }
-  if (type === 'employee') {
-    return [
-      empty,
-      ...lookups.employees.map((item) => ({
-        label: `${item.last_name} ${item.first_name}`,
-        value: item.id,
-      })),
-    ];
-  }
-  if (type === 'status') {
-    return [empty, ...employeeStatuses.map((status) => ({ label: lookups.t(`statuses.${status}`), value: status }))];
-  }
-  return [];
-}
-
-function schemaFor(config: PageConfig, t: (key: string) => string) {
-  const shape: Record<string, z.ZodTypeAny> = {};
-  config.fields.forEach((field) => {
-    if (field.type === 'boolean') {
-      shape[field.name] = z.boolean();
-      return;
-    }
-    if (field.type === 'email') {
-      shape[field.name] = field.required
-        ? z.string().min(1, t('common:validation.required')).email(t('common:validation.invalidEmail'))
-        : z.union([z.string().email(t('common:validation.invalidEmail')), z.literal(''), z.undefined()]);
-      return;
-    }
-    shape[field.name] = field.required
-      ? z.string().min(1, t('common:validation.required'))
-      : z.string().optional();
-  });
-  return z.object(shape);
-}
-
-function formValuesFor(config: PageConfig, entity: OrganizationEntity | null): FormValues {
-  return Object.fromEntries(
-    config.fields.map((field) => {
-      if (field.type === 'boolean') {
-        return [field.name, entity ? Boolean(valueFor(entity, field.name)) : true];
-      }
-      return [field.name, entity ? String(valueFor(entity, field.name) ?? emptyOption) : emptyOption];
-    }),
-  );
-}
-
-function normalizePayload(
-  config: PageConfig,
-  values: FormValues,
-  editing: OrganizationEntity | null,
-): Record<string, unknown> {
-  const payload: Record<string, unknown> = {};
-  config.fields.forEach((field) => {
-    const value = values[field.name];
-    payload[field.name] = value === emptyOption && !field.required ? null : value;
-  });
-  if (editing) {
-    payload.version = editing.version;
-  }
-  return payload;
-}
-
-function valueFor(entity: OrganizationEntity, field: string): unknown {
-  return (entity as unknown as Record<string, unknown>)[field];
-}
-
-function formatValue(
-  field: string,
-  entity: OrganizationEntity,
-  lookups: {
-    departments: Department[];
-    employees: Employee[];
-    organizations: Organization[];
-    positions: Position[];
-    t: (key: string) => string;
-  },
-) {
-  const value = valueFor(entity, field);
-  if (value === null || value === undefined || value === '') {
-    return lookups.t('organizations:values.empty');
-  }
-  if (field === 'is_active') {
-    return value ? lookups.t('organizations:values.active') : lookups.t('organizations:values.inactive');
-  }
-  if (field === 'status') {
-    return lookups.t(`organizations:statuses.${value}`);
-  }
-  if (field.endsWith('_at') || field.endsWith('_date')) {
-    return dayjs(String(value)).format('DD.MM.YYYY');
-  }
-  if (field === 'organization_id') {
-    return lookups.organizations.find((item) => item.id === value)?.name ?? String(value);
-  }
-  if (field === 'department_id' || field === 'parent_department_id') {
-    return lookups.departments.find((item) => item.id === value)?.name ?? String(value);
-  }
-  if (field === 'position_id') {
-    return lookups.positions.find((item) => item.id === value)?.name ?? String(value);
-  }
-  if (field === 'supervisor_employee_id' || field === 'manager_employee_id') {
-    const employee = lookups.employees.find((item) => item.id === value);
-    return employee ? `${employee.last_name} ${employee.first_name}` : String(value);
-  }
-  return String(value);
-}
-
-function buildDepartmentTree(departments: Department[]) {
-  const children = new Map<string | null, Department[]>();
-  departments.forEach((department) => {
-    const key = department.parent_department_id;
-    children.set(key, [...(children.get(key) ?? []), department]);
-  });
-  const nodes: { department: Department; depth: number }[] = [];
-  const visit = (parentId: string | null, depth: number) => {
-    (children.get(parentId) ?? []).forEach((department) => {
-      nodes.push({ department, depth });
-      visit(department.id, depth + 1);
-    });
-  };
-  visit(null, 0);
-  return nodes;
 }

@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, Response, status
 
 from app.api.dependencies import get_unit_of_work
+from app.modules.identity.presentation.dependencies import require_permission
 from app.modules.organizations.application.services import (
     DepartmentService,
     EmployeeService,
@@ -37,6 +38,7 @@ SortDirectionQuery = Annotated[SortDirection, Query()]
     "/organizations",
     response_model=OrganizationResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_permission("organizations.manage"))],
 )
 async def create_organization(
     payload: OrganizationCreate,
@@ -46,7 +48,11 @@ async def create_organization(
     return OrganizationResponse.model_validate(organization)
 
 
-@router.get("/organizations", response_model=PaginatedResponse[OrganizationResponse])
+@router.get(
+    "/organizations",
+    response_model=PaginatedResponse[OrganizationResponse],
+    dependencies=[Depends(require_permission("organizations.read"))],
+)
 async def list_organizations(
     unit_of_work: UnitOfWorkDependency,
     page: int = Query(default=1, ge=1),
@@ -72,7 +78,11 @@ async def list_organizations(
     )
 
 
-@router.get("/organizations/{organization_id}", response_model=OrganizationResponse)
+@router.get(
+    "/organizations/{organization_id}",
+    response_model=OrganizationResponse,
+    dependencies=[Depends(require_permission("organizations.read"))],
+)
 async def get_organization(
     organization_id: UUID,
     unit_of_work: UnitOfWorkDependency,
@@ -81,7 +91,11 @@ async def get_organization(
     return OrganizationResponse.model_validate(organization)
 
 
-@router.patch("/organizations/{organization_id}", response_model=OrganizationResponse)
+@router.patch(
+    "/organizations/{organization_id}",
+    response_model=OrganizationResponse,
+    dependencies=[Depends(require_permission("organizations.manage"))],
+)
 async def update_organization(
     organization_id: UUID,
     payload: OrganizationUpdate,
@@ -97,7 +111,11 @@ async def update_organization(
     return OrganizationResponse.model_validate(organization)
 
 
-@router.delete("/organizations/{organization_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/organizations/{organization_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_permission("organizations.manage"))],
+)
 async def delete_organization(
     organization_id: UUID,
     unit_of_work: UnitOfWorkDependency,
@@ -106,7 +124,12 @@ async def delete_organization(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/departments", response_model=DepartmentResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/departments",
+    response_model=DepartmentResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_permission("departments.manage"))],
+)
 async def create_department(
     payload: DepartmentCreate,
     unit_of_work: UnitOfWorkDependency,
@@ -115,7 +138,11 @@ async def create_department(
     return DepartmentResponse.model_validate(department)
 
 
-@router.get("/departments", response_model=PaginatedResponse[DepartmentResponse])
+@router.get(
+    "/departments",
+    response_model=PaginatedResponse[DepartmentResponse],
+    dependencies=[Depends(require_permission("departments.read"))],
+)
 async def list_departments(
     unit_of_work: UnitOfWorkDependency,
     page: int = Query(default=1, ge=1),
@@ -149,7 +176,11 @@ async def list_departments(
     )
 
 
-@router.get("/departments/{department_id}", response_model=DepartmentResponse)
+@router.get(
+    "/departments/{department_id}",
+    response_model=DepartmentResponse,
+    dependencies=[Depends(require_permission("departments.read"))],
+)
 async def get_department(
     department_id: UUID,
     unit_of_work: UnitOfWorkDependency,
@@ -158,7 +189,11 @@ async def get_department(
     return DepartmentResponse.model_validate(department)
 
 
-@router.patch("/departments/{department_id}", response_model=DepartmentResponse)
+@router.patch(
+    "/departments/{department_id}",
+    response_model=DepartmentResponse,
+    dependencies=[Depends(require_permission("departments.manage"))],
+)
 async def update_department(
     department_id: UUID,
     payload: DepartmentUpdate,
@@ -174,7 +209,11 @@ async def update_department(
     return DepartmentResponse.model_validate(department)
 
 
-@router.delete("/departments/{department_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/departments/{department_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_permission("departments.manage"))],
+)
 async def delete_department(
     department_id: UUID,
     unit_of_work: UnitOfWorkDependency,
@@ -183,7 +222,12 @@ async def delete_department(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/positions", response_model=PositionResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/positions",
+    response_model=PositionResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_permission("positions.manage"))],
+)
 async def create_position(
     payload: PositionCreate,
     unit_of_work: UnitOfWorkDependency,
@@ -192,7 +236,11 @@ async def create_position(
     return PositionResponse.model_validate(position)
 
 
-@router.get("/positions", response_model=PaginatedResponse[PositionResponse])
+@router.get(
+    "/positions",
+    response_model=PaginatedResponse[PositionResponse],
+    dependencies=[Depends(require_permission("positions.read"))],
+)
 async def list_positions(
     unit_of_work: UnitOfWorkDependency,
     page: int = Query(default=1, ge=1),
@@ -226,13 +274,21 @@ async def list_positions(
     )
 
 
-@router.get("/positions/{position_id}", response_model=PositionResponse)
+@router.get(
+    "/positions/{position_id}",
+    response_model=PositionResponse,
+    dependencies=[Depends(require_permission("positions.read"))],
+)
 async def get_position(position_id: UUID, unit_of_work: UnitOfWorkDependency) -> PositionResponse:
     position = await PositionService(unit_of_work).get(position_id)
     return PositionResponse.model_validate(position)
 
 
-@router.patch("/positions/{position_id}", response_model=PositionResponse)
+@router.patch(
+    "/positions/{position_id}",
+    response_model=PositionResponse,
+    dependencies=[Depends(require_permission("positions.manage"))],
+)
 async def update_position(
     position_id: UUID,
     payload: PositionUpdate,
@@ -246,13 +302,22 @@ async def update_position(
     return PositionResponse.model_validate(position)
 
 
-@router.delete("/positions/{position_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/positions/{position_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_permission("positions.manage"))],
+)
 async def delete_position(position_id: UUID, unit_of_work: UnitOfWorkDependency) -> Response:
     await PositionService(unit_of_work).soft_delete(position_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/employees", response_model=EmployeeResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/employees",
+    response_model=EmployeeResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_permission("employees.manage"))],
+)
 async def create_employee(
     payload: EmployeeCreate,
     unit_of_work: UnitOfWorkDependency,
@@ -261,7 +326,11 @@ async def create_employee(
     return EmployeeResponse.model_validate(employee)
 
 
-@router.get("/employees", response_model=PaginatedResponse[EmployeeResponse])
+@router.get(
+    "/employees",
+    response_model=PaginatedResponse[EmployeeResponse],
+    dependencies=[Depends(require_permission("employees.read"))],
+)
 async def list_employees(
     unit_of_work: UnitOfWorkDependency,
     page: int = Query(default=1, ge=1),
@@ -297,13 +366,21 @@ async def list_employees(
     )
 
 
-@router.get("/employees/{employee_id}", response_model=EmployeeResponse)
+@router.get(
+    "/employees/{employee_id}",
+    response_model=EmployeeResponse,
+    dependencies=[Depends(require_permission("employees.read"))],
+)
 async def get_employee(employee_id: UUID, unit_of_work: UnitOfWorkDependency) -> EmployeeResponse:
     employee = await EmployeeService(unit_of_work).get(employee_id)
     return EmployeeResponse.model_validate(employee)
 
 
-@router.patch("/employees/{employee_id}", response_model=EmployeeResponse)
+@router.patch(
+    "/employees/{employee_id}",
+    response_model=EmployeeResponse,
+    dependencies=[Depends(require_permission("employees.manage"))],
+)
 async def update_employee(
     employee_id: UUID,
     payload: EmployeeUpdate,
@@ -317,7 +394,11 @@ async def update_employee(
     return EmployeeResponse.model_validate(employee)
 
 
-@router.delete("/employees/{employee_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/employees/{employee_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_permission("employees.manage"))],
+)
 async def delete_employee(employee_id: UUID, unit_of_work: UnitOfWorkDependency) -> Response:
     await EmployeeService(unit_of_work).soft_delete(employee_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

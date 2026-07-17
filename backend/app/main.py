@@ -6,6 +6,8 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.logging import configure_logging
 from app.middleware.correlation import CorrelationIdMiddleware
+from app.modules.identity.application.services import IdentityService
+from app.repositories.sqlalchemy_unit_of_work import SQLAlchemyUnitOfWork
 
 
 def create_app() -> FastAPI:
@@ -29,6 +31,11 @@ def create_app() -> FastAPI:
 
     register_exception_handlers(app)
     app.include_router(api_router, prefix="/api/v1")
+
+    @app.on_event("startup")
+    async def bootstrap_identity() -> None:
+        async with SQLAlchemyUnitOfWork() as unit_of_work:
+            await IdentityService(unit_of_work).bootstrap_admin()
 
     return app
 

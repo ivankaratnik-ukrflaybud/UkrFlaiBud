@@ -1,0 +1,91 @@
+{
+  "navigation": {
+    "users": "Users",
+    "roles": "Roles",
+    "sessions": "Sessions"
+  },
+  "actions": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "create": "Create",
+    "logout": "Log out",
+    "next": "Next",
+    "permissions": "Access",
+    "resetPassword": "Reset password",
+    "revoke": "Revoke",
+    "save": "Save",
+    "title": "Actions"
+  },
+  "fields": {
+    "code": "Code",
+    "confirmPassword": "Confirm password",
+    "currentPassword": "Current password",
+    "description": "Description",
+    "device": "Device",
+    "email": "Email",
+    "expiresAt": "Expires",
+    "ipAddress": "IP address",
+    "lastUsed": "Last used",
+    "name": "Name",
+    "newPassword": "New password",
+    "password": "Password",
+    "passwordStatus": "Password",
+    "roles": "Roles",
+    "status": "Status",
+    "temporaryPassword": "Temporary password"
+  },
+  "values": {
+    "active": "Active",
+    "custom": "Custom",
+    "empty": "Not set",
+    "inactive": "Inactive",
+    "mustChange": "Change required",
+    "ready": "Ready",
+    "revoked": "Revoked",
+    "system": "System",
+    "unknownDevice": "Unknown device"
+  },
+  "errors": {
+    "generic": "The action could not be completed"
+  },
+  "login": {
+    "error": "Could not sign in",
+    "submit": "Sign in",
+    "subtitle": "Sign in to continue",
+    "title": "Sign in to UKRFLYBUD ERP"
+  },
+  "changePassword": {
+    "error": "Could not change the password",
+    "helper": "At least 10 characters with uppercase, lowercase, and a number.",
+    "mismatch": "Passwords do not match",
+    "submit": "Change password",
+    "subtitle": "Set your own password after the first sign-in",
+    "title": "Change password"
+  },
+  "accessDenied": {
+    "back": "Go home",
+    "description": "You do not have access to this section. Contact an administrator if this is needed for work.",
+    "title": "Access denied"
+  },
+  "users": {
+    "create": "Create user",
+    "passwordHelper": "Leave blank to let the system create a password.",
+    "steps": {
+      "account": "Account",
+      "roles": "Roles"
+    },
+    "subtitle": "Accounts, roles, and access status",
+    "temporaryPassword": "Temporary password",
+    "title": "Users"
+  },
+  "roles": {
+    "create": "Create role",
+    "permissionsTitle": "Access for {{name}}",
+    "subtitle": "System templates and custom access roles",
+    "title": "Roles"
+  },
+  "sessions": {
+    "subtitle": "Devices currently signed in",
+    "title": "Active sessions"
+  }
+}

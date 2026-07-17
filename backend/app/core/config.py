@@ -17,6 +17,16 @@ class Settings(BaseSettings):
     )
     log_level: str = "INFO"
     logging_config_path: str = "logging.yaml"
+    auth_secret_key: str = "change-this-local-development-secret"
+    auth_access_token_minutes: int = 15
+    auth_refresh_token_days: int = 30
+    auth_failed_login_limit: int = 5
+    auth_lock_minutes: int = 15
+    auth_cookie_secure: bool = False
+    auth_cookie_samesite: str = "lax"
+    bootstrap_admin_email: str | None = None
+    bootstrap_admin_name: str | None = None
+    bootstrap_admin_password: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -10,7 +10,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier .. --write --config ../.prettierrc.json --ignore-path ../.prettierignore",
     "format:check": "prettier .. --check --config ../.prettierrc.json --ignore-path ../.prettierignore",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "vitest run",
+    "typecheck": "tsc -b"
   },
   "dependencies": {
     "@emotion/react": ">=11.14.0 <12.0.0",
@@ -30,6 +32,9 @@
   },
   "devDependencies": {
     "@eslint/js": ">=9.17.0 <10.0.0",
+    "@testing-library/jest-dom": ">=6.6.0 <7.0.0",
+    "@testing-library/react": ">=16.2.0 <17.0.0",
+    "@testing-library/user-event": ">=14.6.0 <15.0.0",
     "@vitejs/plugin-react": ">=4.3.0 <6.0.0",
     "@types/react": ">=19.0.0 <20.0.0",
     "@types/react-dom": ">=19.0.0 <20.0.0",
@@ -37,9 +42,11 @@
     "eslint-plugin-react-hooks": ">=5.1.0 <6.0.0",
     "eslint-plugin-react-refresh": ">=0.4.16 <1.0.0",
     "globals": ">=15.14.0 <17.0.0",
+    "jsdom": ">=26.0.0 <28.0.0",
     "prettier": ">=3.4.0 <4.0.0",
     "typescript": ">=5.7.0 <6.0.0",
     "typescript-eslint": ">=8.18.0 <9.0.0",
-    "vite": ">=6.0.0 <8.0.0"
+    "vite": ">=6.0.0 <8.0.0",
+    "vitest": ">=3.0.0 <4.0.0"
   }
 }

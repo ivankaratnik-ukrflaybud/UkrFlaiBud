@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from app.core.config import settings
 from app.database import audit, outbox  # noqa: F401
 from app.database.base import Base
+from app.modules.identity.infrastructure import models as identity_models  # noqa: F401
 from app.modules.organizations.infrastructure import models as organization_models  # noqa: F401
 
 config = context.config
