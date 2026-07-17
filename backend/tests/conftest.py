@@ -21,6 +21,7 @@ os.environ.setdefault(
 
 from app.database.base import Base  # noqa: E402
 from app.modules.identity.infrastructure import models as identity_models  # noqa: E402, F401
+from app.modules.inventory.infrastructure import models as inventory_models  # noqa: E402, F401
 from app.modules.organizations.infrastructure import (  # noqa: E402, F401
     models as organization_models,
 )

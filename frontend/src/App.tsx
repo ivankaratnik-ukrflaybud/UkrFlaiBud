@@ -10,12 +10,19 @@ import { ChangePasswordPage } from './pages/ChangePasswordPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { DepartmentsPage } from './pages/DepartmentsPage';
 import { EmployeesPage } from './pages/EmployeesPage';
+import { InventoryDocumentsPage } from './pages/InventoryDocumentsPage';
+import { ItemCatalogPage } from './pages/ItemCatalogPage';
 import { LoginPage } from './pages/LoginPage';
 import { OrganizationsPage } from './pages/OrganizationsPage';
 import { PositionsPage } from './pages/PositionsPage';
 import { RolesPage } from './pages/RolesPage';
 import { SessionsPage } from './pages/SessionsPage';
+import { StockPage } from './pages/StockPage';
+import { TrackingPage } from './pages/TrackingPage';
+import { TransfersPage } from './pages/TransfersPage';
 import { UsersPage } from './pages/UsersPage';
+import { WarehouseDashboardPage } from './pages/WarehouseDashboardPage';
+import { WarehouseSettingsPage } from './pages/WarehouseSettingsPage';
 import { queryClient } from './services/queryClient';
 import { theme } from './theme/theme';
 
@@ -50,6 +57,23 @@ export function App() {
                   </Route>
                   <Route element={<ProtectedRoute permission="roles.read" />}>
                     <Route path="/roles" element={<RolesPage />} />
+                  </Route>
+                  <Route element={<ProtectedRoute permission="inventory.stock.read" />}>
+                    <Route path="/warehouse" element={<WarehouseDashboardPage />} />
+                    <Route path="/stock" element={<StockPage />} />
+                  </Route>
+                  <Route element={<ProtectedRoute permission="inventory.items.read" />}>
+                    <Route path="/items" element={<ItemCatalogPage />} />
+                  </Route>
+                  <Route element={<ProtectedRoute permission="inventory.documents.read" />}>
+                    <Route path="/inventory-documents" element={<InventoryDocumentsPage />} />
+                    <Route path="/transfers" element={<TransfersPage />} />
+                  </Route>
+                  <Route element={<ProtectedRoute permission="inventory.tracking.read" />}>
+                    <Route path="/tracking" element={<TrackingPage />} />
+                  </Route>
+                  <Route element={<ProtectedRoute permission="inventory.warehouses.manage" />}>
+                    <Route path="/warehouse-settings" element={<WarehouseSettingsPage />} />
                   </Route>
                   <Route path="/sessions" element={<SessionsPage />} />
                 </Route>

@@ -73,6 +73,88 @@ PERMISSIONS: dict[str, tuple[str, str, str]] = {
     "sessions.manage": ("Сеанси", "Керування активними пристроями", "identity"),
     "audit.read": ("Журнал дій", "Перегляд журналу дій", "audit"),
     "settings.manage": ("Налаштування", "Керування налаштуваннями", "settings"),
+    "inventory.sites.read": ("Майданчики", "Перегляд майданчиків", "inventory"),
+    "inventory.sites.manage": (
+        "Керування майданчиками",
+        "Створення та редагування майданчиків",
+        "inventory",
+    ),
+    "inventory.warehouses.read": ("Склади", "Перегляд складів", "inventory"),
+    "inventory.warehouses.manage": (
+        "Керування складами",
+        "Створення та редагування складів",
+        "inventory",
+    ),
+    "inventory.locations.read": ("Місця зберігання", "Перегляд місць зберігання", "inventory"),
+    "inventory.locations.manage": (
+        "Керування місцями зберігання",
+        "Створення та редагування місць зберігання",
+        "inventory",
+    ),
+    "inventory.units.read": ("Одиниці виміру", "Перегляд одиниць виміру", "inventory"),
+    "inventory.units.manage": (
+        "Керування одиницями виміру",
+        "Створення та редагування одиниць виміру",
+        "inventory",
+    ),
+    "inventory.categories.read": (
+        "Категорії номенклатури",
+        "Перегляд категорій номенклатури",
+        "inventory",
+    ),
+    "inventory.categories.manage": (
+        "Керування категоріями",
+        "Створення та редагування категорій номенклатури",
+        "inventory",
+    ),
+    "inventory.items.read": ("Номенклатура", "Перегляд номенклатури", "inventory"),
+    "inventory.items.manage": (
+        "Керування номенклатурою",
+        "Створення та редагування номенклатури",
+        "inventory",
+    ),
+    "inventory.tracking.read": (
+        "Партії та серійні номери",
+        "Перегляд партій і серійних номерів",
+        "inventory",
+    ),
+    "inventory.tracking.manage": (
+        "Керування відстеженням",
+        "Створення партій та серійних номерів",
+        "inventory",
+    ),
+    "inventory.documents.read": (
+        "Складські документи",
+        "Перегляд складських документів",
+        "inventory",
+    ),
+    "inventory.documents.create": (
+        "Створення складських документів",
+        "Створення чернеток складських документів",
+        "inventory",
+    ),
+    "inventory.documents.edit": (
+        "Редагування складських документів",
+        "Редагування чернеток складських документів",
+        "inventory",
+    ),
+    "inventory.documents.post": (
+        "Проведення складських документів",
+        "Проведення складських документів",
+        "inventory",
+    ),
+    "inventory.documents.cancel": (
+        "Скасування складських документів",
+        "Скасування та сторнування складських документів",
+        "inventory",
+    ),
+    "inventory.stock.read": ("Залишки", "Перегляд складських залишків", "inventory"),
+    "inventory.stock.adjust": (
+        "Коригування залишків",
+        "Створення складських коригувань",
+        "inventory",
+    ),
+    "inventory.audit.read": ("Аудит складу", "Перегляд складського аудиту", "inventory"),
 }
 
 ROLE_TEMPLATES: dict[str, tuple[str, str, list[str]]] = {
@@ -108,6 +190,48 @@ ROLE_TEMPLATES: dict[str, tuple[str, str, list[str]]] = {
             "employees.read",
             "users.read",
             "roles.read",
+        ],
+    ),
+    "warehouse_clerk": (
+        "Комірник",
+        "Операційна робота зі складськими документами та залишками.",
+        [
+            "inventory.sites.read",
+            "inventory.warehouses.read",
+            "inventory.locations.read",
+            "inventory.units.read",
+            "inventory.categories.read",
+            "inventory.items.read",
+            "inventory.tracking.read",
+            "inventory.documents.read",
+            "inventory.documents.create",
+            "inventory.documents.edit",
+            "inventory.documents.post",
+            "inventory.stock.read",
+        ],
+    ),
+    "warehouse_manager": (
+        "Керівник складу",
+        "Керування складськими довідниками, документами та доступом.",
+        [
+            code
+            for code in PERMISSIONS
+            if code.startswith("inventory.") and code != "inventory.audit.read"
+        ],
+    ),
+    "warehouse_viewer": (
+        "Перегляд складу",
+        "Перегляд складських довідників, документів і залишків без змін.",
+        [
+            "inventory.sites.read",
+            "inventory.warehouses.read",
+            "inventory.locations.read",
+            "inventory.units.read",
+            "inventory.categories.read",
+            "inventory.items.read",
+            "inventory.tracking.read",
+            "inventory.documents.read",
+            "inventory.stock.read",
         ],
     ),
 }

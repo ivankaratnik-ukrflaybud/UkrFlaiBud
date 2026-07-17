@@ -1,6 +1,6 @@
 # UKRFLYBUD Manager
 
-UKRFLYBUD Manager is a production-oriented ERP platform skeleton for long-term enterprise development. The current scope includes reusable core platform foundations, Identity & Access, and the Organization Core module for organizations, departments, positions, and employees.
+UKRFLYBUD Manager is a production-oriented ERP platform skeleton for long-term enterprise development. The current scope includes reusable core platform foundations, Identity & Access, Organization Core, and the Warehouse & Item Catalog inventory foundation.
 
 ## Stack
 
@@ -115,6 +115,11 @@ Identity endpoints are available under `/api/v1`:
 
 See `docs/UserAdministration.uk.md` for Ukrainian user administration steps.
 
+Inventory scope endpoints extend user administration:
+
+- `GET /identity/users/{id}/inventory-scope`
+- `PUT /identity/users/{id}/inventory-scope`
+
 ## Organization Core API
 
 The first business module exposes these versioned endpoints:
@@ -125,6 +130,23 @@ The first business module exposes these versioned endpoints:
 - `POST /api/v1/employees`, `GET /api/v1/employees`, `GET /api/v1/employees/{id}`, `PATCH /api/v1/employees/{id}`, `DELETE /api/v1/employees/{id}`
 
 List endpoints support pagination, filtering, and sorting. Update requests require the current `version` for optimistic concurrency.
+
+## Warehouse & Item Catalog API
+
+Sprint 5 adds the inventory foundation under `/api/v1/inventory`:
+
+- Sites, warehouses, storage locations, units, categories, items
+- Lots and serial numbers
+- Inventory documents and document lines
+- Posting, cancellation with reversal movements, stock balances, movement ledger, low-stock queries
+
+Warehouse access is enforced on the backend through permissions plus site/warehouse scope. The immutable `inventory_movements` ledger is the source of truth; `inventory_stock_balances` is maintained transactionally for current stock queries.
+
+User guides:
+
+- `docs/WarehouseAdministration.uk.md`
+- `docs/WarehouseOperations.uk.md`
+- `docs/InventoryArchitecture.md`
 
 ## Repository Layout
 
@@ -146,4 +168,4 @@ The primary UI language is Ukrainian. The default locale is `uk-UA`, timezone is
 
 ## Current Scope
 
-Tasks, warehouse, procurement, production, products, documents, notifications, and unrelated ERP workflows are intentionally not implemented yet.
+Procurement, suppliers, BOM, manufacturing orders, CNC jobs, production consumption, assembly, accounting valuation, invoices, and financial accounting are intentionally not implemented yet.
