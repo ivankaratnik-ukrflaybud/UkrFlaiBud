@@ -19,6 +19,7 @@ import { ItemCatalogPage } from './pages/ItemCatalogPage';
 import { LoginPage } from './pages/LoginPage';
 import { OrganizationsPage } from './pages/OrganizationsPage';
 import { PositionsPage } from './pages/PositionsPage';
+import { ProductionDashboardPage } from './pages/ProductionDashboardPage';
 import { RolesPage } from './pages/RolesPage';
 import { SessionsPage } from './pages/SessionsPage';
 import { StockPage } from './pages/StockPage';
@@ -87,6 +88,14 @@ export function App() {
                       element={<BomVersionsPage />}
                     />
                     <Route path="/specifications/:specificationId/print" element={<BomPrintPage />} />
+                  </Route>
+                  <Route element={<ProtectedRoute permission="production.read" />}>
+                    <Route path="/production" element={<ProductionDashboardPage />} />
+                    <Route path="/production/orders" element={<ProductionDashboardPage />} />
+                    <Route path="/production/materials" element={<ProductionDashboardPage />} />
+                    <Route path="/production/stages" element={<ProductionDashboardPage />} />
+                    <Route path="/production/completions" element={<ProductionDashboardPage />} />
+                    <Route path="/production/settings" element={<ProductionDashboardPage />} />
                   </Route>
                   <Route path="/sessions" element={<SessionsPage />} />
                 </Route>

@@ -12,6 +12,7 @@ from app.modules.bom.infrastructure import models as bom_models  # noqa: F401
 from app.modules.identity.infrastructure import models as identity_models  # noqa: F401
 from app.modules.inventory.infrastructure import models as inventory_models  # noqa: F401
 from app.modules.organizations.infrastructure import models as organization_models  # noqa: F401
+from app.modules.production.infrastructure import models as production_models  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

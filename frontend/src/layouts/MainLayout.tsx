@@ -52,16 +52,33 @@ const bomNavItems = [
   { href: '/specifications', label: 'Специфікації', permission: 'bom.read' },
 ];
 
+const productionNavItems = [
+  { href: '/production', label: 'Огляд виробництва', permission: 'production.read' },
+  { href: '/production/orders', label: 'Виробничі замовлення', permission: 'production.read' },
+  { href: '/production/materials', label: 'Матеріали до виробництва', permission: 'production.read' },
+  { href: '/production/stages', label: 'Етапи виробництва', permission: 'production.read' },
+  { href: '/production/completions', label: 'Готова продукція', permission: 'production.read' },
+  {
+    href: '/production/settings',
+    label: 'Налаштування виробництва',
+    permission: 'production.settings',
+  },
+];
+
 export function MainLayout() {
   const { t } = useTranslation(['identity', 'organizations']);
   const auth = useAuth();
   const navigate = useNavigate();
   const [profileAnchor, setProfileAnchor] = useState<HTMLElement | null>(null);
   const [warehouseAnchor, setWarehouseAnchor] = useState<HTMLElement | null>(null);
+  const [productionAnchor, setProductionAnchor] = useState<HTMLElement | null>(null);
   const visibleWarehouseItems = warehouseNavItems.filter((item) =>
     auth.hasPermission(item.permission),
   );
   const visibleBomItems = bomNavItems.filter((item) => auth.hasPermission(item.permission));
+  const visibleProductionItems = productionNavItems.filter((item) =>
+    auth.hasPermission(item.permission),
+  );
 
   const logout = async () => {
     await auth.logout();
@@ -109,6 +126,29 @@ export function MainLayout() {
                 {item.label}
               </Button>
             ))}
+            {visibleProductionItems.length > 0 ? (
+              <>
+                <Button size="small" onClick={(event) => setProductionAnchor(event.currentTarget)}>
+                  Виробництво
+                </Button>
+                <Menu
+                  anchorEl={productionAnchor}
+                  open={Boolean(productionAnchor)}
+                  onClose={() => setProductionAnchor(null)}
+                >
+                  {visibleProductionItems.map((item) => (
+                    <MenuItem
+                      component={RouterLink}
+                      key={item.href}
+                      onClick={() => setProductionAnchor(null)}
+                      to={item.href}
+                    >
+                      {item.label}
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
+            ) : null}
           </Stack>
           <Tooltip title={auth.user?.display_name ?? ''}>
             <IconButton color="primary" onClick={(event) => setProfileAnchor(event.currentTarget)}>
