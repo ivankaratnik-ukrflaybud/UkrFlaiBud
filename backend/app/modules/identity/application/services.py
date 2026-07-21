@@ -221,6 +221,48 @@ PERMISSIONS: dict[str, tuple[str, str, str]] = {
         "bom",
     ),
     "bom.audit.read": ("Аудит специфікацій", "Перегляд аудиту специфікацій", "bom"),
+    "production.read": ("Виробництво", "Перегляд виробничих замовлень", "production"),
+    "production.create": (
+        "Створення замовлень",
+        "Створення виробничих замовлень",
+        "production",
+    ),
+    "production.edit": (
+        "Редагування замовлень",
+        "Планування, випуск і зміна виробничих замовлень",
+        "production",
+    ),
+    "production.reserve": (
+        "Резервування матеріалів",
+        "Резервування та зняття резерву матеріалів",
+        "production",
+    ),
+    "production.issue": (
+        "Видача матеріалів",
+        "Видача і повернення матеріалів виробництва",
+        "production",
+    ),
+    "production.consume": (
+        "Списання матеріалів",
+        "Фіксація використання і браку матеріалів",
+        "production",
+    ),
+    "production.stages": (
+        "Етапи виробництва",
+        "Керування етапами виробничих замовлень",
+        "production",
+    ),
+    "production.complete": (
+        "Готова продукція",
+        "Оприбуткування готової продукції",
+        "production",
+    ),
+    "production.export": ("Експорт виробництва", "PDF та Excel виробничих замовлень", "production"),
+    "production.settings": (
+        "Налаштування виробництва",
+        "Керування шаблонами етапів",
+        "production",
+    ),
 }
 
 BOM_PERMISSION_ALIASES: dict[str, tuple[str, ...]] = {
@@ -354,6 +396,11 @@ ROLE_TEMPLATES: dict[str, tuple[str, str, list[str]]] = {
             "bom.approve",
             "bom.export",
         ],
+    ),
+    "production_manager": (
+        "Керівник виробництва",
+        "Повний операційний доступ до виробничих замовлень.",
+        [code for code in PERMISSIONS if code.startswith("production.")],
     ),
 }
 
@@ -779,9 +826,9 @@ async def require_permission_for_user(
     user = await UserService(unit_of_work).get(user_id)
     if user.is_superuser:
         return
-    permission_codes = set(await AssignmentRepository(unit_of_work._session).user_permission_codes(
-        user_id
-    ))
+    permission_codes = set(
+        await AssignmentRepository(unit_of_work._session).user_permission_codes(user_id)
+    )
     if permission_code in permission_codes:
         return
     if any(alias in permission_codes for alias in BOM_PERMISSION_ALIASES.get(permission_code, ())):
