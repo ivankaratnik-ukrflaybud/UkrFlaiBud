@@ -73,7 +73,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (user?.is_superuser) {
           return true;
         }
-        return permissionsFromToken(token).includes(permission);
+        const permissions = permissionsFromToken(token);
+        return (
+          permissions.includes(permission) ||
+          (permissionAliases[permission] ?? []).some((alias) => permissions.includes(alias))
+        );
       },
       login: async (email: string, password: string) => {
         const session = await identityApi.login(email, password);
@@ -122,3 +126,16 @@ function permissionsFromToken(token: string | null) {
     return [];
   }
 }
+
+const permissionAliases: Record<string, string[]> = {
+  'bom.read': ['bom.specifications.read'],
+  'bom.create': ['bom.specifications.create', 'bom.versions.create'],
+  'bom.edit': [
+    'bom.specifications.edit',
+    'bom.specifications.delete',
+    'bom.versions.edit',
+    'bom.versions.review',
+  ],
+  'bom.approve': ['bom.versions.approve'],
+  'bom.attachments': ['bom.attachments.manage'],
+};

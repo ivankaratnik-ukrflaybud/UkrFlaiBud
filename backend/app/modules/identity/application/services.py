@@ -28,6 +28,7 @@ from app.modules.identity.infrastructure.models import (
     PermissionModel,
     RoleModel,
     UserModel,
+    UserRoleModel,
     UserSessionModel,
 )
 from app.modules.identity.infrastructure.repositories import (
@@ -155,6 +156,84 @@ PERMISSIONS: dict[str, tuple[str, str, str]] = {
         "inventory",
     ),
     "inventory.audit.read": ("Аудит складу", "Перегляд складського аудиту", "inventory"),
+    "bom.read": ("Специфікації", "Перегляд специфікацій і версій", "bom"),
+    "bom.create": (
+        "Створення специфікацій",
+        "Створення специфікацій і нових версій BOM",
+        "bom",
+    ),
+    "bom.edit": (
+        "Редагування специфікацій",
+        "Редагування чернеток специфікацій, версій і позицій",
+        "bom",
+    ),
+    "bom.approve": (
+        "Затвердження специфікацій",
+        "Затвердження та архівування версій специфікацій",
+        "bom",
+    ),
+    "bom.specifications.read": ("Специфікації", "Перегляд специфікацій і версій", "bom"),
+    "bom.specifications.create": (
+        "Створення специфікацій",
+        "Створення нових специфікацій виробів",
+        "bom",
+    ),
+    "bom.specifications.edit": (
+        "Редагування специфікацій",
+        "Редагування реквізитів специфікацій",
+        "bom",
+    ),
+    "bom.specifications.delete": (
+        "Архівування специфікацій",
+        "Архівування та деактивація специфікацій",
+        "bom",
+    ),
+    "bom.versions.create": (
+        "Створення версій специфікацій",
+        "Створення нових версій на основі чинних специфікацій",
+        "bom",
+    ),
+    "bom.versions.edit": (
+        "Редагування версій специфікацій",
+        "Редагування чернеток версій і позицій",
+        "bom",
+    ),
+    "bom.versions.review": (
+        "Перегляд версій специфікацій",
+        "Передавання версій специфікацій на перегляд",
+        "bom",
+    ),
+    "bom.versions.approve": (
+        "Затвердження специфікацій",
+        "Затвердження та заміна версій специфікацій",
+        "bom",
+    ),
+    "bom.export": ("Експорт специфікацій", "Завантаження PDF та Excel", "bom"),
+    "bom.import": ("Імпорт специфікацій", "Імпорт позицій із XLSX", "bom"),
+    "bom.attachments": (
+        "Файли специфікацій",
+        "Керування кресленнями, фото та іншими файлами специфікацій",
+        "bom",
+    ),
+    "bom.attachments.manage": (
+        "Файли специфікацій",
+        "Керування кресленнями, фото та іншими файлами специфікацій",
+        "bom",
+    ),
+    "bom.audit.read": ("Аудит специфікацій", "Перегляд аудиту специфікацій", "bom"),
+}
+
+BOM_PERMISSION_ALIASES: dict[str, tuple[str, ...]] = {
+    "bom.read": ("bom.specifications.read",),
+    "bom.create": ("bom.specifications.create", "bom.versions.create"),
+    "bom.edit": (
+        "bom.specifications.edit",
+        "bom.specifications.delete",
+        "bom.versions.edit",
+        "bom.versions.review",
+    ),
+    "bom.approve": ("bom.versions.approve",),
+    "bom.attachments": ("bom.attachments.manage",),
 }
 
 ROLE_TEMPLATES: dict[str, tuple[str, str, list[str]]] = {
@@ -234,6 +313,48 @@ ROLE_TEMPLATES: dict[str, tuple[str, str, list[str]]] = {
             "inventory.stock.read",
         ],
     ),
+    "bom_designer": (
+        "Конструктор",
+        "Створення та редагування чернеток специфікацій і позицій.",
+        [
+            "bom.read",
+            "bom.create",
+            "bom.edit",
+            "bom.export",
+            "bom.import",
+            "bom.attachments",
+            "inventory.items.read",
+            "inventory.units.read",
+        ],
+    ),
+    "bom_technologist": (
+        "Технолог",
+        "Підготовка, перевірка та імпорт технологічних специфікацій.",
+        [
+            "bom.read",
+            "bom.create",
+            "bom.edit",
+            "bom.export",
+            "bom.import",
+            "bom.attachments",
+            "inventory.items.read",
+            "inventory.units.read",
+        ],
+    ),
+    "bom_viewer": (
+        "Перегляд специфікацій",
+        "Перегляд, друк та експорт специфікацій без змін.",
+        ["bom.read", "bom.export"],
+    ),
+    "bom_approver": (
+        "Затвердження специфікацій",
+        "Перегляд, погодження і затвердження версій специфікацій.",
+        [
+            "bom.read",
+            "bom.approve",
+            "bom.export",
+        ],
+    ),
 }
 
 
@@ -288,6 +409,8 @@ class IdentityService:
         user_repository = UserRepository(self.session)
         existing = await user_repository.get_by_email(settings.bootstrap_admin_email)
         if existing is not None:
+            await self._ensure_system_admin_role(existing.id)
+            await self.unit_of_work.commit()
             return
         validate_password_strength(settings.bootstrap_admin_password)
         admin = await user_repository.create(
@@ -305,6 +428,16 @@ class IdentityService:
         if admin_role is not None:
             await AssignmentRepository(self.session).set_user_roles(admin.id, [admin_role.id])
         await self.unit_of_work.commit()
+
+    async def _ensure_system_admin_role(self, user_id: UUID) -> None:
+        admin_role = await RoleRepository(self.session).get_by_code("system_admin")
+        if admin_role is None:
+            return
+        assignment_repository = AssignmentRepository(self.session)
+        roles = await assignment_repository.user_roles(user_id)
+        if all(role.id != admin_role.id for role in roles):
+            self.session.add(UserRoleModel(user_id=user_id, role_id=admin_role.id))
+            await self.session.flush()
 
 
 class AuthService(IdentityService):
@@ -646,11 +779,14 @@ async def require_permission_for_user(
     user = await UserService(unit_of_work).get(user_id)
     if user.is_superuser:
         return
-    permission_codes = await AssignmentRepository(unit_of_work._session).user_permission_codes(
+    permission_codes = set(await AssignmentRepository(unit_of_work._session).user_permission_codes(
         user_id
-    )
-    if permission_code not in permission_codes:
-        raise PermissionDeniedError("Not enough permissions.")
+    ))
+    if permission_code in permission_codes:
+        return
+    if any(alias in permission_codes for alias in BOM_PERMISSION_ALIASES.get(permission_code, ())):
+        return
+    raise PermissionDeniedError("Not enough permissions.")
 
 
 def _device_name(user_agent: str | None) -> str | None:

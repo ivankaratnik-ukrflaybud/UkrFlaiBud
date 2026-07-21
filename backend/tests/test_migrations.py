@@ -91,6 +91,10 @@ def test_alembic_upgrade_downgrade_and_reupgrade(disposable_database: str) -> No
         "inventory_stock_balances",
         "user_site_access",
         "user_warehouse_access",
+        "bom_specifications",
+        "bom_versions",
+        "bom_lines",
+        "bom_attachments",
         "alembic_version",
     }.issubset(names_after_upgrade)
 
@@ -130,6 +134,10 @@ def test_alembic_upgrade_downgrade_and_reupgrade(disposable_database: str) -> No
         "inventory_stock_balances",
         "user_site_access",
         "user_warehouse_access",
+        "bom_specifications",
+        "bom_versions",
+        "bom_lines",
+        "bom_attachments",
         "alembic_version",
     }.issubset(names_after_reupgrade)
 
@@ -204,6 +212,139 @@ def test_inventory_seed_is_idempotent(disposable_database: str) -> None:
         )
     )
     assert warehouse_rows == [("KYIV-MAIN", 1), ("TALNE-MAIN", 1)]
+
+
+def test_bom_canonical_permission_migration_upgrades_existing_roles(
+    disposable_database: str,
+) -> None:
+    asyncio.run(reset_public_schema(disposable_database))
+    os.environ["DATABASE_URL"] = disposable_database
+    get_settings.cache_clear()
+    config_module.settings = get_settings()
+    config = alembic_config(disposable_database)
+
+    command.upgrade(config, "20260717_0009")
+    command.upgrade(config, "head")
+
+    permission_rows = asyncio.run(
+        fetch_all(
+            disposable_database,
+            """
+            SELECT code
+            FROM permissions
+            WHERE code IN (
+                'bom.read',
+                'bom.create',
+                'bom.edit',
+                'bom.approve',
+                'bom.export',
+                'bom.import',
+                'bom.attachments'
+            )
+            ORDER BY code
+            """,
+        )
+    )
+    role_rows = asyncio.run(
+        fetch_all(
+            disposable_database,
+            """
+            SELECT role.code, permission.code
+            FROM roles role
+            JOIN role_permissions rp ON rp.role_id = role.id
+            JOIN permissions permission ON permission.id = rp.permission_id
+            WHERE role.code IN ('system_admin', 'bom_viewer')
+              AND permission.code IN ('bom.read', 'bom.export')
+            ORDER BY role.code, permission.code
+            """,
+        )
+    )
+
+    assert [row[0] for row in permission_rows] == [
+        "bom.approve",
+        "bom.attachments",
+        "bom.create",
+        "bom.edit",
+        "bom.export",
+        "bom.import",
+        "bom.read",
+    ]
+    assert ("bom_viewer", "bom.read") in role_rows
+    assert ("bom_viewer", "bom.export") in role_rows
+    assert ("system_admin", "bom.read") in role_rows
+    assert ("system_admin", "bom.export") in role_rows
+
+
+def test_bom_export_audit_actions_migration_upgrades_existing_constraint(
+    disposable_database: str,
+) -> None:
+    asyncio.run(reset_public_schema(disposable_database))
+    os.environ["DATABASE_URL"] = disposable_database
+    get_settings.cache_clear()
+    config_module.settings = get_settings()
+    config = alembic_config(disposable_database)
+
+    command.upgrade(config, "20260720_0010")
+    command.upgrade(config, "head")
+
+    audit_id = str(uuid4())
+    entity_id = str(uuid4())
+    actor_id = str(uuid4())
+    asyncio.run(
+        execute_sql(
+            disposable_database,
+            [
+                (
+                    """
+                    INSERT INTO audit_log
+                        (id, action, entity_type, entity_id, actor_id, after_data)
+                    VALUES
+                        (:pdf_id, 'export_pdf', 'bom_version', :entity_id, :actor_id, '{}'),
+                        (:xlsx_id, 'export_xlsx', 'bom_version', :entity_id, :actor_id, '{}'),
+                        (:approve_id, 'approve', 'bom_version', :entity_id, :actor_id, '{}'),
+                        (:archive_id, 'archive', 'bom_version', :entity_id, :actor_id, '{}'),
+                        (
+                            :import_id,
+                            'import_completed',
+                            'bom_version',
+                            :entity_id,
+                            :actor_id,
+                            '{}'
+                        )
+                    """,
+                    {
+                        "pdf_id": audit_id,
+                        "xlsx_id": str(uuid4()),
+                        "approve_id": str(uuid4()),
+                        "archive_id": str(uuid4()),
+                        "import_id": str(uuid4()),
+                        "entity_id": entity_id,
+                        "actor_id": actor_id,
+                    },
+                )
+            ],
+        )
+    )
+
+    rows = asyncio.run(
+        fetch_all(
+            disposable_database,
+            """
+            SELECT action
+            FROM audit_log
+            WHERE entity_id = :entity_id
+            ORDER BY action
+            """,
+            {"entity_id": entity_id},
+        )
+    )
+    assert rows == [
+        ("approve",),
+        ("archive",),
+        ("export_pdf",),
+        ("export_xlsx",),
+        ("import_completed",),
+    ]
 
 
 def test_inventory_seed_cleanup_merges_duplicate_seeded_records(

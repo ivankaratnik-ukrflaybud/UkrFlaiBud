@@ -6,6 +6,10 @@ import { AuthProvider } from './features/identity/AuthContext';
 import { ProtectedRoute } from './features/identity/ProtectedRoute';
 import { MainLayout } from './layouts/MainLayout';
 import { AccessDeniedPage } from './pages/AccessDeniedPage';
+import { BomEditorPage } from './pages/BomEditorPage';
+import { BomListPage } from './pages/BomListPage';
+import { BomPrintPage } from './pages/BomPrintPage';
+import { BomVersionsPage } from './pages/BomVersionsPage';
 import { ChangePasswordPage } from './pages/ChangePasswordPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { DepartmentsPage } from './pages/DepartmentsPage';
@@ -74,6 +78,15 @@ export function App() {
                   </Route>
                   <Route element={<ProtectedRoute permission="inventory.warehouses.manage" />}>
                     <Route path="/warehouse-settings" element={<WarehouseSettingsPage />} />
+                  </Route>
+                  <Route element={<ProtectedRoute permission="bom.read" />}>
+                    <Route path="/specifications" element={<BomListPage />} />
+                    <Route path="/specifications/:specificationId" element={<BomEditorPage />} />
+                    <Route
+                      path="/specifications/:specificationId/versions"
+                      element={<BomVersionsPage />}
+                    />
+                    <Route path="/specifications/:specificationId/print" element={<BomPrintPage />} />
                   </Route>
                   <Route path="/sessions" element={<SessionsPage />} />
                 </Route>

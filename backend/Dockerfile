@@ -7,6 +7,9 @@ ENV PIP_NO_CACHE_DIR=1
 WORKDIR /app
 
 RUN groupadd --system app && useradd --system --gid app --home-dir /app app
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml ./
 COPY alembic.ini ./
@@ -19,4 +22,3 @@ USER app
 EXPOSE 8000
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-

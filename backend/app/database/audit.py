@@ -17,6 +17,11 @@ class AuditAction(StrEnum):
     DELETE = "delete"
     RESTORE = "restore"
     SYSTEM = "system"
+    EXPORT_PDF = "export_pdf"
+    EXPORT_XLSX = "export_xlsx"
+    APPROVE = "approve"
+    ARCHIVE = "archive"
+    IMPORT_COMPLETED = "import_completed"
 
 
 class AuditLog(Base):
