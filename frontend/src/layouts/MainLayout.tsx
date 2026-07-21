@@ -48,6 +48,10 @@ const warehouseNavItems = [
   },
 ];
 
+const bomNavItems = [
+  { href: '/specifications', label: 'Специфікації', permission: 'bom.read' },
+];
+
 export function MainLayout() {
   const { t } = useTranslation(['identity', 'organizations']);
   const auth = useAuth();
@@ -57,6 +61,7 @@ export function MainLayout() {
   const visibleWarehouseItems = warehouseNavItems.filter((item) =>
     auth.hasPermission(item.permission),
   );
+  const visibleBomItems = bomNavItems.filter((item) => auth.hasPermission(item.permission));
 
   const logout = async () => {
     await auth.logout();
@@ -99,6 +104,11 @@ export function MainLayout() {
                 </Menu>
               </>
             ) : null}
+            {visibleBomItems.map((item) => (
+              <Button key={item.href} component={RouterLink} size="small" to={item.href}>
+                {item.label}
+              </Button>
+            ))}
           </Stack>
           <Tooltip title={auth.user?.display_name ?? ''}>
             <IconButton color="primary" onClick={(event) => setProfileAnchor(event.currentTarget)}>

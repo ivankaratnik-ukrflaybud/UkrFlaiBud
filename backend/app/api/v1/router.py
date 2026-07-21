@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1.routes import health
+from app.modules.bom.presentation.routes import router as bom_router
 from app.modules.identity.presentation.routes import router as identity_router
 from app.modules.inventory.presentation.routes import (
     identity_scope_router,
@@ -16,3 +17,4 @@ api_router.include_router(identity_router, tags=["identity"])
 api_router.include_router(identity_scope_router, tags=["identity"])
 api_router.include_router(organizations_router, tags=["organization core"])
 api_router.include_router(inventory_router, tags=["inventory"])
+api_router.include_router(bom_router, tags=["bom"])

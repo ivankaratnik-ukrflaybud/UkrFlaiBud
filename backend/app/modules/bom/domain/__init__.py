@@ -1,0 +1,1 @@
+"""BOM domain objects."""
