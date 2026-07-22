@@ -9,6 +9,8 @@ from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel
 
 from app.api.dependencies import get_unit_of_work
+from app.modules.cnc.application.services import CncWorkOrderService
+from app.modules.cnc.presentation.schemas import CncWorkOrderResponse
 from app.modules.identity.infrastructure.models import UserModel
 from app.modules.identity.presentation.dependencies import (
     current_user,
@@ -20,6 +22,7 @@ from app.modules.production.application.services import (
     ProductionQueryService,
 )
 from app.modules.production.presentation.schemas import (
+    CreateCncWorkOrderFromProduction,
     DashboardResponse,
     ProductionOrderCreate,
     ProductionOrderResponse,
@@ -152,6 +155,43 @@ async def update_order(
         await ProductionOrderService(unit_of_work).update_order(
             order_id, data, expected_version=expected_version, actor_id=user_id, user=user
         )
+    )
+
+
+@router.post(
+    "/orders/{order_id}/cnc-work-order",
+    response_model=CncWorkOrderResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[
+        Depends(require_permission("production.edit")),
+        Depends(require_permission("cnc.work_orders.create")),
+    ],
+)
+async def create_cnc_work_order(
+    order_id: UUID,
+    payload: CreateCncWorkOrderFromProduction,
+    unit_of_work: SQLAlchemyUnitOfWork = Depends(get_unit_of_work),
+    user_id: UUID = Depends(current_user_id),
+    user: UserModel = Depends(current_user),
+) -> CncWorkOrderResponse:
+    order = await ProductionOrderService(unit_of_work).get(order_id, user=user)
+    quantity = payload.planned_quantity or (order.planned_quantity - order.completed_quantity)
+    data = payload.model_dump(exclude_unset=True)
+    data.update(
+        {
+            "organization_id": order.organization_id,
+            "production_order_id": order.id,
+            "site_id": order.site_id,
+            "department_id": order.department_id,
+            "source_warehouse_id": payload.source_warehouse_id or order.material_warehouse_id,
+            "output_warehouse_id": payload.output_warehouse_id or order.finished_goods_warehouse_id,
+            "planned_quantity": quantity,
+            "unit_of_measure_id": order.unit_of_measure_id,
+            "responsible_employee_id": order.responsible_employee_id,
+        }
+    )
+    return CncWorkOrderResponse.model_validate(
+        await CncWorkOrderService(unit_of_work).create(data, actor_id=user_id, user=user)
     )
 
 

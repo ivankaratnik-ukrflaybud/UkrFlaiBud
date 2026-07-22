@@ -24,9 +24,9 @@ class Settings(BaseSettings):
     auth_lock_minutes: int = 15
     auth_cookie_secure: bool = False
     auth_cookie_samesite: str = "lax"
-    bootstrap_admin_email: str | None = None
-    bootstrap_admin_name: str | None = None
-    bootstrap_admin_password: str | None = None
+    bootstrap_admin_email: str | None = "admin@gmail.com"
+    bootstrap_admin_name: str | None = "Administrator"
+    bootstrap_admin_password: str | None = "ChangeMe12345"
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -50,3 +50,27 @@ async def test_incoming_correlation_id_propagation() -> None:
 
     assert response.status_code == 200
     assert response.headers["X-Correlation-ID"] == correlation_id
+
+
+def test_production_specific_order_routes_precede_generic_action_route() -> None:
+    app = create_app()
+    route_positions = {
+        path: index
+        for index, path in enumerate(app.openapi()["paths"])
+        if path.startswith("/api/v1/production/orders/")
+    }
+
+    generic_position = route_positions["/api/v1/production/orders/{order_id}/{action}"]
+    for specific_path in (
+        "/api/v1/production/orders/{order_id}/reserve-materials",
+        "/api/v1/production/orders/{order_id}/release-reservations",
+        "/api/v1/production/orders/{order_id}/issue-materials",
+        "/api/v1/production/orders/{order_id}/return-materials",
+        "/api/v1/production/orders/{order_id}/consume-materials",
+        "/api/v1/production/orders/{order_id}/scrap-materials",
+        "/api/v1/production/orders/{order_id}/complete",
+        "/api/v1/production/orders/{order_id}/preview",
+        "/api/v1/production/orders/{order_id}/export/pdf",
+        "/api/v1/production/orders/{order_id}/export/xlsx",
+    ):
+        assert route_positions[specific_path] < generic_position

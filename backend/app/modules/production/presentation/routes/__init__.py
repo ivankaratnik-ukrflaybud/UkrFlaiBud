@@ -9,8 +9,8 @@ from app.modules.production.presentation.routes import (
 )
 
 router = APIRouter(prefix="/production")
-router.include_router(orders.router)
 router.include_router(materials.router)
 router.include_router(stages.router)
 router.include_router(completion.router)
 router.include_router(exports.router)
+router.include_router(orders.router)

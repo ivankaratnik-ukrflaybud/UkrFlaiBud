@@ -21,11 +21,13 @@ os.environ.setdefault(
 
 from app.database.base import Base  # noqa: E402
 from app.modules.bom.infrastructure import models as bom_models  # noqa: E402, F401
+from app.modules.cnc.infrastructure import models as cnc_models  # noqa: E402, F401
 from app.modules.identity.infrastructure import models as identity_models  # noqa: E402, F401
 from app.modules.inventory.infrastructure import models as inventory_models  # noqa: E402, F401
 from app.modules.organizations.infrastructure import (  # noqa: E402, F401
     models as organization_models,
 )
+from app.modules.production.infrastructure import models as production_models  # noqa: E402, F401
 from tests.support import TechnicalRecord  # noqa: E402, F401
 
 

@@ -65,6 +65,19 @@ const productionNavItems = [
   },
 ];
 
+const cncNavItems = [
+  { href: '/cnc', label: 'Огляд ЧПК', permission: 'cnc.read' },
+  { href: '/cnc/queue', label: 'Черга робіт', permission: 'cnc.read' },
+  { href: '/cnc/work-orders', label: 'Завдання ЧПК', permission: 'cnc.read' },
+  { href: '/cnc/sheet-plans', label: 'Карти розкрою', permission: 'cnc.read' },
+  { href: '/cnc/parts', label: 'Деталі', permission: 'cnc.read' },
+  { href: '/cnc/programs', label: 'Програми', permission: 'cnc.programs.read' },
+  { href: '/cnc/machines', label: 'Верстати', permission: 'cnc.machines.read' },
+  { href: '/cnc/tools', label: 'Інструмент', permission: 'cnc.tools.read' },
+  { href: '/cnc/offcuts', label: 'Залишки матеріалів', permission: 'cnc.read' },
+  { href: '/cnc/settings', label: 'Налаштування ЧПК', permission: 'cnc.settings.manage' },
+];
+
 export function MainLayout() {
   const { t } = useTranslation(['identity', 'organizations']);
   const auth = useAuth();
@@ -72,6 +85,7 @@ export function MainLayout() {
   const [profileAnchor, setProfileAnchor] = useState<HTMLElement | null>(null);
   const [warehouseAnchor, setWarehouseAnchor] = useState<HTMLElement | null>(null);
   const [productionAnchor, setProductionAnchor] = useState<HTMLElement | null>(null);
+  const [cncAnchor, setCncAnchor] = useState<HTMLElement | null>(null);
   const visibleWarehouseItems = warehouseNavItems.filter((item) =>
     auth.hasPermission(item.permission),
   );
@@ -79,6 +93,7 @@ export function MainLayout() {
   const visibleProductionItems = productionNavItems.filter((item) =>
     auth.hasPermission(item.permission),
   );
+  const visibleCncItems = cncNavItems.filter((item) => auth.hasPermission(item.permission));
 
   const logout = async () => {
     await auth.logout();
@@ -141,6 +156,29 @@ export function MainLayout() {
                       component={RouterLink}
                       key={item.href}
                       onClick={() => setProductionAnchor(null)}
+                      to={item.href}
+                    >
+                      {item.label}
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
+            ) : null}
+            {visibleCncItems.length > 0 ? (
+              <>
+                <Button size="small" onClick={(event) => setCncAnchor(event.currentTarget)}>
+                  ЧПК
+                </Button>
+                <Menu
+                  anchorEl={cncAnchor}
+                  open={Boolean(cncAnchor)}
+                  onClose={() => setCncAnchor(null)}
+                >
+                  {visibleCncItems.map((item) => (
+                    <MenuItem
+                      component={RouterLink}
+                      key={item.href}
+                      onClick={() => setCncAnchor(null)}
                       to={item.href}
                     >
                       {item.label}

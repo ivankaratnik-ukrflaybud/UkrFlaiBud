@@ -398,6 +398,7 @@ class ProductionServiceBase:
                 aggregate_type=aggregate_type,
                 aggregate_id=aggregate_id,
                 payload=payload,
+                occurred_at=datetime.now(UTC),
             )
         )
 
