@@ -4,6 +4,18 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { AuthProvider } from './features/identity/AuthContext';
 import { ProtectedRoute } from './features/identity/ProtectedRoute';
+import {
+  CncDashboardPage,
+  CncMachinesPage,
+  CncOffcutsPage,
+  CncPartsPage,
+  CncProgramsPage,
+  CncQueuePage,
+  CncSettingsPage,
+  CncSheetsPage,
+  CncToolsPage,
+  CncWorkOrdersPage,
+} from './features/cnc/CncPages';
 import { MainLayout } from './layouts/MainLayout';
 import { AccessDeniedPage } from './pages/AccessDeniedPage';
 import { BomEditorPage } from './pages/BomEditorPage';
@@ -96,6 +108,18 @@ export function App() {
                     <Route path="/production/stages" element={<ProductionDashboardPage />} />
                     <Route path="/production/completions" element={<ProductionDashboardPage />} />
                     <Route path="/production/settings" element={<ProductionDashboardPage />} />
+                  </Route>
+                  <Route element={<ProtectedRoute permission="cnc.read" />}>
+                    <Route path="/cnc" element={<CncDashboardPage />} />
+                    <Route path="/cnc/queue" element={<CncQueuePage />} />
+                    <Route path="/cnc/work-orders" element={<CncWorkOrdersPage />} />
+                    <Route path="/cnc/sheet-plans" element={<CncSheetsPage />} />
+                    <Route path="/cnc/parts" element={<CncPartsPage />} />
+                    <Route path="/cnc/programs" element={<CncProgramsPage />} />
+                    <Route path="/cnc/machines" element={<CncMachinesPage />} />
+                    <Route path="/cnc/tools" element={<CncToolsPage />} />
+                    <Route path="/cnc/offcuts" element={<CncOffcutsPage />} />
+                    <Route path="/cnc/settings" element={<CncSettingsPage />} />
                   </Route>
                   <Route path="/sessions" element={<SessionsPage />} />
                 </Route>

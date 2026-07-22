@@ -62,6 +62,23 @@ class ProductionOrderUpdate(BaseModel):
     notes: str | None = None
 
 
+class CreateCncWorkOrderFromProduction(BaseModel):
+    work_order_number: str | None = Field(default=None, max_length=64)
+    name: str | None = Field(default=None, max_length=255)
+    cnc_part_id: UUID | None = None
+    sheet_plan_id: UUID | None = None
+    program_id: UUID | None = None
+    machine_id: UUID | None = None
+    source_warehouse_id: UUID | None = None
+    output_warehouse_id: UUID | None = None
+    planned_quantity: Decimal | None = Field(default=None, gt=0)
+    material_item_id: UUID | None = None
+    planned_material_quantity: Decimal = Field(default=Decimal("0"), ge=0)
+    planned_setup_minutes: Decimal | None = None
+    planned_cycle_minutes: Decimal | None = None
+    notes: str | None = None
+
+
 class ProductionOrderResponse(MutableResponse):
     organization_id: UUID
     order_number: str

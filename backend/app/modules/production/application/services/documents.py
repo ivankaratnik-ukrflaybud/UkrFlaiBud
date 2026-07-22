@@ -150,7 +150,7 @@ def render_preview_html(document: dict[str, Any], *, include_toolbar: bool = Tru
     return f"""<!doctype html>
 <html lang="uk"><head><meta charset="utf-8" /><title>{escape(order["order_number"])}</title>
 <style>
-@page {{ size: A4 portrait; margin: 14mm; }}
+@page {{ size: A4 landscape; margin: 14mm; }}
 body {{ font-family: "DejaVu Sans", Arial, sans-serif; color: #111827; margin: 0; }}
 .toolbar {{ display: flex; gap: 8px; margin: 12px; }}
 .toolbar a,.toolbar button {{ border: 1px solid #111827; background: white; color: #111827; padding: 8px 12px; text-decoration: none; }}
@@ -264,6 +264,7 @@ def render_xlsx(document: dict[str, Any]) -> bytes:
     sheet.freeze_panes = "A9"
     sheet.print_title_rows = "8:8"
     sheet.page_setup.paperSize = sheet.PAPERSIZE_A4
+    sheet.page_setup.orientation = sheet.ORIENTATION_LANDSCAPE
     sheet.page_setup.fitToWidth = 1
     sheet.page_setup.fitToHeight = 0
     sheet.sheet_properties.pageSetUpPr.fitToPage = True
@@ -275,7 +276,7 @@ def render_xlsx(document: dict[str, Any]) -> bytes:
 
 def render_pdf(document: dict[str, Any]) -> bytes:
     from reportlab.lib import colors  # type: ignore[import-untyped]
-    from reportlab.lib.pagesizes import A4  # type: ignore[import-untyped]
+    from reportlab.lib.pagesizes import A4, landscape  # type: ignore[import-untyped]
     from reportlab.lib.styles import getSampleStyleSheet  # type: ignore[import-untyped]
     from reportlab.lib.units import mm  # type: ignore[import-untyped]
     from reportlab.pdfbase import pdfmetrics  # type: ignore[import-untyped]
@@ -292,7 +293,7 @@ def render_pdf(document: dict[str, Any]) -> bytes:
 
     font_name, _, _ = _register_unicode_font(pdfmetrics, TTFont)
     buffer = BytesIO()
-    pdf = SimpleDocTemplate(buffer, pagesize=A4, leftMargin=12 * mm, rightMargin=12 * mm)
+    pdf = SimpleDocTemplate(buffer, pagesize=landscape(A4), leftMargin=12 * mm, rightMargin=12 * mm)
     styles = getSampleStyleSheet()
     for style in styles.byName.values():
         style.fontName = font_name

@@ -265,6 +265,43 @@ PERMISSIONS: dict[str, tuple[str, str, str]] = {
     ),
 }
 
+PERMISSIONS.update(
+    {
+        "cnc.read": ("ЧПК", "Перегляд модуля ЧПК", "cnc"),
+        "cnc.create": ("Створення ЧПК", "Узагальнене створення записів ЧПК", "cnc"),
+        "cnc.edit": ("Редагування ЧПК", "Узагальнене редагування записів ЧПК", "cnc"),
+        "cnc.execute": ("Виконання ЧПК", "Узагальнене виконання завдань ЧПК", "cnc"),
+        "cnc.approve": ("Затвердження ЧПК", "Узагальнене затвердження програм ЧПК", "cnc"),
+        "cnc.work_orders.create": ("Створення завдань ЧПК", "Створення завдань ЧПК", "cnc"),
+        "cnc.work_orders.edit": ("Редагування завдань ЧПК", "Редагування завдань ЧПК", "cnc"),
+        "cnc.work_orders.plan": ("Планування ЧПК", "Планування карт розкрою та завдань", "cnc"),
+        "cnc.work_orders.queue": ("Черга ЧПК", "Керування чергою ЧПК", "cnc"),
+        "cnc.work_orders.start": ("Запуск ЧПК", "Початок налаштування та обробки", "cnc"),
+        "cnc.work_orders.pause": ("Пауза ЧПК", "Пауза та продовження ЧПК", "cnc"),
+        "cnc.work_orders.complete": ("Завершення ЧПК", "Випуск і завершення завдань", "cnc"),
+        "cnc.work_orders.cancel": ("Скасування ЧПК", "Скасування завдань ЧПК", "cnc"),
+        "cnc.materials.read": ("Матеріали ЧПК", "Перегляд матеріалів ЧПК", "cnc"),
+        "cnc.materials.issue": ("Видача матеріалів ЧПК", "Видача матеріалів у ЧПК", "cnc"),
+        "cnc.materials.return": ("Повернення матеріалів ЧПК", "Повернення матеріалів з ЧПК", "cnc"),
+        "cnc.materials.scrap": ("Списання матеріалів ЧПК", "Брак і списання матеріалів ЧПК", "cnc"),
+        "cnc.output.post": ("Оприбуткування ЧПК", "Оприбуткування готових деталей ЧПК", "cnc"),
+        "cnc.offcuts.manage": ("Залишки ЧПК", "Керування придатними залишками ЧПК", "cnc"),
+        "cnc.machines.read": ("Верстати ЧПК", "Перегляд верстатів ЧПК", "cnc"),
+        "cnc.machines.manage": ("Керування верстатами ЧПК", "Створення та зміна верстатів", "cnc"),
+        "cnc.programs.read": ("Програми ЧПК", "Перегляд програм ЧПК", "cnc"),
+        "cnc.programs.manage": (
+            "Керування програмами ЧПК",
+            "Ревізії та затвердження програм",
+            "cnc",
+        ),
+        "cnc.tools.read": ("Інструмент ЧПК", "Перегляд інструменту ЧПК", "cnc"),
+        "cnc.tools.manage": ("Керування інструментом ЧПК", "Створення та зміна інструменту", "cnc"),
+        "cnc.settings.manage": ("Налаштування ЧПК", "Керування налаштуваннями ЧПК", "cnc"),
+        "cnc.export": ("Експорт ЧПК", "PDF, XLSX і друк завдань ЧПК", "cnc"),
+        "cnc.audit.read": ("Аудит ЧПК", "Перегляд аудиту ЧПК", "cnc"),
+    }
+)
+
 BOM_PERMISSION_ALIASES: dict[str, tuple[str, ...]] = {
     "bom.read": ("bom.specifications.read",),
     "bom.create": ("bom.specifications.create", "bom.versions.create"),
@@ -276,6 +313,46 @@ BOM_PERMISSION_ALIASES: dict[str, tuple[str, ...]] = {
     ),
     "bom.approve": ("bom.versions.approve",),
     "bom.attachments": ("bom.attachments.manage",),
+    "cnc.create": (
+        "cnc.work_orders.create",
+        "cnc.machines.manage",
+        "cnc.programs.manage",
+        "cnc.tools.manage",
+    ),
+    "cnc.edit": (
+        "cnc.work_orders.edit",
+        "cnc.work_orders.plan",
+        "cnc.work_orders.queue",
+        "cnc.machines.manage",
+        "cnc.programs.manage",
+        "cnc.tools.manage",
+    ),
+    "cnc.execute": (
+        "cnc.work_orders.start",
+        "cnc.work_orders.pause",
+        "cnc.work_orders.complete",
+        "cnc.materials.issue",
+        "cnc.materials.return",
+        "cnc.materials.scrap",
+        "cnc.output.post",
+        "cnc.offcuts.manage",
+    ),
+    "cnc.approve": ("cnc.programs.manage",),
+    "cnc.work_orders.create": ("cnc.create",),
+    "cnc.machines.manage": ("cnc.create", "cnc.edit"),
+    "cnc.programs.manage": ("cnc.create", "cnc.edit", "cnc.approve"),
+    "cnc.tools.manage": ("cnc.create", "cnc.edit"),
+    "cnc.work_orders.edit": ("cnc.edit",),
+    "cnc.work_orders.plan": ("cnc.edit",),
+    "cnc.work_orders.queue": ("cnc.edit",),
+    "cnc.work_orders.start": ("cnc.execute",),
+    "cnc.work_orders.pause": ("cnc.execute",),
+    "cnc.work_orders.complete": ("cnc.execute",),
+    "cnc.materials.issue": ("cnc.execute",),
+    "cnc.materials.return": ("cnc.execute",),
+    "cnc.materials.scrap": ("cnc.execute",),
+    "cnc.output.post": ("cnc.execute",),
+    "cnc.offcuts.manage": ("cnc.execute",),
 }
 
 ROLE_TEMPLATES: dict[str, tuple[str, str, list[str]]] = {
@@ -400,7 +477,49 @@ ROLE_TEMPLATES: dict[str, tuple[str, str, list[str]]] = {
     "production_manager": (
         "Керівник виробництва",
         "Повний операційний доступ до виробничих замовлень.",
-        [code for code in PERMISSIONS if code.startswith("production.")],
+        [
+            code
+            for code in PERMISSIONS
+            if code.startswith("production.") or code.startswith("cnc.")
+        ],
+    ),
+    "cnc_operator": (
+        "Оператор ЧПК",
+        "Операторський доступ до виконання завдань ЧПК.",
+        [
+            "cnc.read",
+            "cnc.execute",
+            "cnc.work_orders.start",
+            "cnc.work_orders.pause",
+            "cnc.work_orders.complete",
+            "cnc.materials.read",
+            "cnc.tools.read",
+            "cnc.programs.read",
+        ],
+    ),
+    "cnc_shop_lead": (
+        "Майстер дільниці ЧПК",
+        "Операційне керування чергою, матеріалами та випуском ЧПК.",
+        [code for code in PERMISSIONS if code.startswith("cnc.")],
+    ),
+    "cnc_technologist": (
+        "Технолог ЧПК",
+        "Керування деталями, програмами, інструментом та картами розкрою.",
+        [
+            "cnc.read",
+            "cnc.approve",
+            "cnc.work_orders.plan",
+            "cnc.programs.read",
+            "cnc.programs.manage",
+            "cnc.tools.read",
+            "cnc.tools.manage",
+            "cnc.export",
+        ],
+    ),
+    "cnc_viewer": (
+        "Перегляд ЧПК",
+        "Перегляд завдань, черги та документів ЧПК без змін.",
+        ["cnc.read", "cnc.machines.read", "cnc.programs.read", "cnc.tools.read", "cnc.export"],
     ),
 }
 

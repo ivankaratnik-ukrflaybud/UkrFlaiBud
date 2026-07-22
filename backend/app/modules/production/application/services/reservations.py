@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from decimal import Decimal
+from decimal import ROUND_DOWN, Decimal
 from typing import Any
 from uuid import UUID
 
@@ -31,14 +31,9 @@ class ReservationService(ProductionServiceBase):
         order = await self.get_order(order_id)
         await self.ensure_order_scope(order, user)
         await self.ensure_order_editable(order)
-        reservation_lines = lines or [
-            {
-                "material_requirement_id": requirement.id,
-                "quantity": _remaining_to_reserve(requirement),
-            }
-            for requirement in await self.requirements_for_reservation(order_id)
-            if _remaining_to_reserve(requirement) > 0
-        ]
+        reservation_lines = lines or await self._auto_reservation_lines(
+            order_id, organization_id=order.organization_id
+        )
         created: list[ProductionMaterialReservationModel] = []
         transaction_lines: list[dict[str, Any]] = []
         repository = ProductionReservationRepository(self.session)
@@ -112,6 +107,20 @@ class ReservationService(ProductionServiceBase):
 
         return await ProductionRequirementRepository(self.session).list_for_order(order_id)
 
+    async def _auto_reservation_lines(
+        self, order_id: UUID, *, organization_id: UUID
+    ) -> list[dict[str, Any]]:
+        lines: list[dict[str, Any]] = []
+        for requirement in await self.requirements_for_reservation(order_id):
+            remaining = _remaining_to_reserve(requirement)
+            if remaining <= 0:
+                continue
+            unit = await self.ensure_unit(organization_id, requirement.unit_of_measure_id)
+            quantity = _floor_to_precision(remaining, unit.precision)
+            if quantity > 0:
+                lines.append({"material_requirement_id": requirement.id, "quantity": quantity})
+        return lines
+
     async def release_all(self, order_id: UUID, *, actor_id: UUID) -> None:
         order = await self.get_order(order_id)
         reservations = await ProductionReservationRepository(self.session).active_for_order(
@@ -154,3 +163,8 @@ def _remaining_to_reserve(requirement: Any) -> Decimal:
         Decimal("0"),
         Decimal(requirement.planned_quantity) - Decimal(requirement.reserved_quantity),
     )
+
+
+def _floor_to_precision(quantity: Decimal, precision: int) -> Decimal:
+    exponent = Decimal(1).scaleb(-precision)
+    return quantity.quantize(exponent, rounding=ROUND_DOWN)

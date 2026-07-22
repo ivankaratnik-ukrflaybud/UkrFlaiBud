@@ -285,7 +285,7 @@ class BomService:
         specification = await self.get_specification(version.bom_id)
         specification.status = SpecificationStatus.UNDER_REVIEW.value
         await self._audit(
-            action="submit_review",
+            action=AuditAction.UPDATE.value,
             entity_type="bom_version",
             entity_id=version.id,
             actor_id=actor_id,
@@ -336,7 +336,7 @@ class BomService:
             raise ValidationError("Only approved versions can be superseded.")
         version.status = BomVersionStatus.SUPERSEDED.value
         await self._audit(
-            action="supersede",
+            action=AuditAction.UPDATE.value,
             entity_type="bom_version",
             entity_id=version.id,
             actor_id=actor_id,

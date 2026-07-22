@@ -21,6 +21,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 
+import { listEntities } from '../organizations/api';
 import {
   downloadProductionOrder,
   fetchProductionDashboard,
@@ -31,7 +32,7 @@ import {
 } from './api';
 import type { ProductionOrder } from './types';
 
-const ORGANIZATION_ID = import.meta.env.VITE_DEFAULT_ORGANIZATION_ID ?? '';
+const CONFIGURED_ORGANIZATION_ID = import.meta.env.VITE_DEFAULT_ORGANIZATION_ID ?? '';
 
 const statusLabels: Record<string, string> = {
   draft: 'Чернетка',
@@ -48,14 +49,27 @@ const statusLabels: Record<string, string> = {
 export function ProductionDashboardPage() {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const organizations = useQuery({
+    enabled: !CONFIGURED_ORGANIZATION_ID,
+    queryFn: () =>
+      listEntities('organizations', {
+        filters: { is_active: true },
+        page: 1,
+        pageSize: 1,
+        sortBy: 'name',
+        sortDirection: 'asc',
+      }),
+    queryKey: ['production-organizations-fallback'],
+  });
+  const organizationId = CONFIGURED_ORGANIZATION_ID || organizations.data?.items[0]?.id || '';
   const dashboard = useQuery({
-    enabled: Boolean(ORGANIZATION_ID),
-    queryFn: () => fetchProductionDashboard(ORGANIZATION_ID),
-    queryKey: ['production-dashboard', ORGANIZATION_ID],
+    enabled: Boolean(organizationId),
+    queryFn: () => fetchProductionDashboard(organizationId),
+    queryKey: ['production-dashboard', organizationId],
   });
   const orders = useQuery({
-    queryFn: () => listProductionOrders({ organizationId: ORGANIZATION_ID || undefined }),
-    queryKey: ['production-orders', ORGANIZATION_ID],
+    queryFn: () => listProductionOrders({ organizationId: organizationId || undefined }),
+    queryKey: ['production-orders', organizationId],
   });
   const selectedOrder = useMemo(
     () => orders.data?.items.find((order) => order.id === selectedOrderId) ?? orders.data?.items[0],
@@ -82,7 +96,7 @@ export function ProductionDashboardPage() {
     },
   });
 
-  if (!ORGANIZATION_ID) {
+  if (!organizationId) {
     return (
       <Alert severity="info">
         Для огляду виробництва задайте VITE_DEFAULT_ORGANIZATION_ID або відкрийте замовлення через
